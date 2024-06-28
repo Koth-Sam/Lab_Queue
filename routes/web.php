@@ -23,9 +23,9 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/requests/create', [RequestController::class, 'create'])->name('requests.create');
 // Handle the form submission to store a new request
 Route::post('/requests', [RequestController::class, 'store'])->name('requests.store');
-});
 
 Route::get('/requests', [RequestController::class, 'index'])->name('requests.index');
-
+Route::get('/requests/{id}', [RequestController::class, 'show'])->name('requests.show');
+});
 
 require __DIR__.'/auth.php';

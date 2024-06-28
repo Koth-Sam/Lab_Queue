@@ -9,7 +9,7 @@ class Request extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'student_id', 'course_name', 'course_code', 'request_type','description', 'subject_area', 'seat_number', 'screenshot', 'code_url', 'status'
+        'student_id', 'course_name', 'course_code', 'request_type','description', 'subject_area', 'seat_number', 'screenshot', 'code_url', 'status','requested_at'
     ];
 
     public function user()

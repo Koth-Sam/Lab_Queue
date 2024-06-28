@@ -15,7 +15,7 @@ class RequestController extends Controller
     public function index()
     {
         //
-        $requests = Request::where('student_id', Auth::id())->get();
+        $requests = Request::where('student_id', Auth::id())->orderBy('requested_at', 'desc')->get();
         return view('requests.view', compact('requests'));
     }
 
@@ -47,6 +47,8 @@ class RequestController extends Controller
 
         $requestData = $request->all();
         $requestData['student_id'] = Auth::id();
+        $requestData['requested_at'] = now();
+
         if ($request->hasFile('screenshot')) {
             $path = $request->file('screenshot')->store('screenshots', 'public');
             $requestData['screenshot'] = $path;
@@ -63,6 +65,8 @@ class RequestController extends Controller
     public function show(string $id)
     {
         //
+        $request = Request::findOrFail($id);
+        return view('requests.show', compact('request'));
     }
 
     /**

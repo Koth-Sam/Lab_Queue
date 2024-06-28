@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('screenshot')->nullable();
             $table->string('code_url')->nullable();
             $table->enum('status', ['pending', 'accepted', 'completed'])->default('pending');
+            $table->timestamp('requested_at');
             $table->timestamps();
 
             $table->foreign('student_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
