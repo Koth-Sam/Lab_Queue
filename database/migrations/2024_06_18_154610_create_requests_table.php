@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             
             $table->unsignedBigInteger('student_id');
+            $table->unsignedBigInteger('ta_id')->nullable();
             $table->string('course_name');
             $table->string('course_code');
             $table->enum('request_type', ['assistance', 'sign-off']);
@@ -26,6 +27,11 @@ return new class extends Migration
             $table->enum('status', ['pending', 'accepted', 'completed'])->default('pending');
             $table->timestamp('requested_at');
             $table->timestamps();
+            
+            $table->timestamp('accepted_at')->nullable();
+            $table->timestamp('completed_at')->nullable();
+
+            $table->foreign('ta_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
 
             $table->foreign('student_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
         });

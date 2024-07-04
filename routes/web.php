@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RequestController;
+use App\Http\Controllers\TAController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -27,5 +28,9 @@ Route::post('/requests', [RequestController::class, 'store'])->name('requests.st
 Route::get('/requests', [RequestController::class, 'index'])->name('requests.index');
 Route::get('/requests/{id}', [RequestController::class, 'show'])->name('requests.show');
 });
+
+// TA routes
+Route::get('/ta/requests', [TAController::class, 'index'])->name('ta.index');
+Route::post('/ta/requests/{id}', [TAController::class, 'update'])->name('ta.update');
 
 require __DIR__.'/auth.php';

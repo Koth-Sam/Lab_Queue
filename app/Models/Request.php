@@ -8,13 +8,20 @@ use Illuminate\Database\Eloquent\Model;
 class Request extends Model
 {
     use HasFactory;
+
     protected $fillable = [
-        'student_id', 'course_name', 'course_code', 'request_type','description', 'subject_area', 'seat_number', 'screenshot', 'code_url', 'status','requested_at'
+        'student_id', 'course_name', 'course_code', 'request_type', 'seat_number', 'description', 'subject_area', 'screenshot', 'code_url', 'status', 'requested_at', 'ta_id', 'accepted_at', 'completed_at'
+        
     ];
 
-    public function user()
+    public function student()
     {
         return $this->belongsTo(User::class, 'student_id');
+    }
+
+    public function ta()
+    {
+        return $this->belongsTo(User::class, 'ta_id');
     }
 
     public function status()
@@ -27,3 +34,4 @@ class Request extends Model
         return $this->hasOne(Feedback::class);
     }
 }
+
