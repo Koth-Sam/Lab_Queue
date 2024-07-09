@@ -20,7 +20,7 @@ Route::middleware('auth')->group(function () {
 });
 
 //Student Routes
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'role:student'])->group(function () {
 // Display the form to create a new request
 Route::get('/requests/create', [RequestController::class, 'create'])->name('requests.create');
 // Handle the form submission to store a new request
@@ -31,8 +31,14 @@ Route::get('/requests', [RequestController::class, 'index'])->name('requests.ind
 Route::get('/requests/{id}', [RequestController::class, 'show'])->name('requests.show');
 });
 
+
 // TA routes
+Route::middleware(['auth', 'role:ta'])->group(function () {
 Route::get('/ta/requests', [TAController::class, 'index'])->name('ta.index');
-Route::post('/ta/requests/{id}', [TAController::class, 'update'])->name('ta.update');
+Route::get('/ta/requests/{id}', [TAController::class, 'show'])->name('ta.show');
+//Route::post('/ta/requests/{id}', [TAController::class, 'update'])->name('ta.update');
+Route::put('/ta/requests/{id}', [TAController::class, 'update'])->name('ta.update'); 
+});
+
 
 require __DIR__.'/auth.php';

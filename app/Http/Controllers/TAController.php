@@ -2,83 +2,48 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request as HttpRequest;
-use App\Models\Request;
-use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Http\Request;
 use App\Models\Request as UserRequest;
+use Illuminate\Support\Facades\Auth;
 
 class TAController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
-        $requests = Request::orderBy('requested_at', 'desc')->get();
+        $requests = UserRequest::orderBy('requested_at', 'desc')->get();
         return view('ta.index', compact('requests'));
-
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function show($id)
     {
-        //
+        $request = UserRequest::findOrFail($id);
+        return view('ta.show', compact('request'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function update(Request $request, $id)
     {
-        //
-    }
+       
+        $validatedData = $request->validate([
+            'status' => 'required|in:pending,accepted,completed',
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        $userRequest = UserRequest::findOrFail($id);
+        $userRequest->status = $validatedData['status'];
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-        $userRequest = Request::findOrFail($id);
-        $userRequest->status = $request->status;
-
-        if ($request->status == 'In-Progress') {
+        if ($validatedData['status'] == 'accepted') {
             $userRequest->ta_id = Auth::id();
             $userRequest->accepted_at = now();
-        } elseif ($request->status == 'Completed') {
+        } elseif ($validatedData['status'] == 'completed') {
+            // Ensure TA details are set if status changes directly to completed
+            if (!$userRequest->ta_id) {
+                $userRequest->ta_id = Auth::id();
+                $userRequest->accepted_at = now();
+            }
             $userRequest->completed_at = now();
         }
-
+        
         $userRequest->save();
 
         return redirect()->route('ta.index')->with('success', 'Request status updated successfully.');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }

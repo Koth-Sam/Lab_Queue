@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Log; // Import the Log faca
+
 
 class RegisteredUserController extends Controller
 {
@@ -40,8 +42,23 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role, 
+           // 'role' => $request->role, 
         ]);
+
+// Log the role assignment process
+Log::info('Assigning role', ['role' => $request->role]);
+
+
+         // Assign the selected role to the user
+         $user->assignRole($request->role);
+
+// Verify role assignment
+if ($user->hasRole($request->role)) {
+    Log::info('Role assigned successfully', ['user' => $user->id, 'role' => $request->role]);
+} else {
+    Log::error('Role assignment failed', ['user' => $user->id, 'role' => $request->role]);
+}
+
 
         event(new Registered($user));
 
