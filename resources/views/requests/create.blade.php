@@ -58,7 +58,7 @@
 
         <div class="mb-4">
             <label for="screenshot" class="block text-gray-700">Screenshot(s) (optional)</label>
-            <input type="file" id="screenshot" name="screenshot" class="w-full p-2 border border-gray-300 rounded mt-1">
+            <input type="file" id="screenshot" name="screenshots[]" class="w-full p-2 border border-gray-300 rounded mt-1" multiple>
         </div>
 
         <div class="mb-4">

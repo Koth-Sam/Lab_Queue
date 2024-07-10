@@ -39,9 +39,11 @@
     <div class="mb-4">
         <label class="block text-gray-700">Screenshot(s):</label>
         @if ($request->screenshot)
-            <img src="{{ asset('storage/' . $request->screenshot) }}" class="rounded">
+            @foreach ($request->screenshot as $screenshot)
+                <img src="{{ asset('storage/' . $screenshot) }}" class="rounded mb-2" alt="Screenshot">
+            @endforeach
         @else
-            <p class="p-2 border border-gray-300 rounded">No screenshot provided</p>
+            <p class="p-2 border border-gray-300 rounded">No screenshots provided</p>
         @endif
     </div>
 

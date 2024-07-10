@@ -17,6 +17,7 @@ class TAController extends Controller
     public function show($id)
     {
         $request = UserRequest::findOrFail($id);
+        $request->screenshot = json_decode($request->screenshot);
         return view('ta.show', compact('request'));
     }
 

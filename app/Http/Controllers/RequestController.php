@@ -49,10 +49,14 @@ class RequestController extends Controller
         $requestData['student_id'] = Auth::id();
         $requestData['requested_at'] = now();
 
-        if ($request->hasFile('screenshot')) {
-            $path = $request->file('screenshot')->store('screenshots', 'public');
-            $requestData['screenshot'] = $path;
-        }
+        if ($request->hasFile('screenshots')) {
+            $screenshotPaths = [];
+            foreach ($request->file('screenshots') as $file) {
+                $path = $file->store('screenshots', 'public');
+                $screenshotPaths[] = $path;
+            }
+            $requestData['screenshot'] = json_encode($screenshotPaths);
+        } 
 
         Request::create($requestData);
 
@@ -66,6 +70,7 @@ class RequestController extends Controller
     {
         //
         $request = Request::findOrFail($id);
+        $request->screenshot = json_decode($request->screenshot);
         return view('requests.show', compact('request'));
     }
 
@@ -91,5 +96,10 @@ class RequestController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function studentHome()
+    {
+        return view('student.home');
     }
 }
