@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@section('title', 'View Requests')
 @section('content')
 
 <div class="bg-white p-6 rounded-lg shadow-md">
@@ -7,7 +7,7 @@
     <div class="flex items-center mb-4">
         
         <h1 class="text-2xl font-bold mr-2">My Requests</h1>
-        <a href="{{ route('requests.create') }}" class=" text-black px-2 py-2 border border-black-2000 border-solid ">
+        <a href="{{ route('requests.create') }}" class=" text-black px-2 py-2 border border-black-800 border-solid ">
             Add Request
         </a>
     </div>
@@ -36,11 +36,11 @@
                     <th class="py-2 px-4 border-b border-gray-200 cursor-pointer sortable" data-column="3">
                         Seat Number <i class="fas fa-sort"></i>
                     </th>
-                    <th class="py-2 px-4 border-b border-gray-200">Status</th>
-                    <th class="py-2 px-4 border-b border-gray-200">Requested Date/Time</th>
-                    <th class="py-2 px-4 border-b border-gray-200">TA Name</th>
-                    <th class="py-2 px-4 border-b border-gray-200">Accepted Date/Time</th>
-                    <th class="py-2 px-4 border-b border-gray-200">Completed Date/Time</th>
+                    <th class="py-2 px-4 border-b border-gray-200 cursor-pointer sortable" data-column="4">Status <i class="fas fa-sort"></i></th>
+                    <th class="py-2 px-4 border-b border-gray-200 cursor-pointer sortable" data-column="5">Requested Date/Time <i class="fas fa-sort"></i></th>
+                    <th class="py-2 px-4 border-b border-gray-200 cursor-pointer sortable" data-column="6">TA Name <i class="fas fa-sort"></i></th>
+                    <th class="py-2 px-4 border-b border-gray-200 cursor-pointer sortable" data-column="7">Accepted Date/Time <i class="fas fa-sort"></i></th>
+                    <th class="py-2 px-4 border-b border-gray-200 cursor-pointer sortable" data-column="8">Completed Date/Time <i class="fas fa-sort"></i></th>
                     <th class="py-2 px-4 border-b border-gray-200">Actions</th>
                 </tr>
             </thead>

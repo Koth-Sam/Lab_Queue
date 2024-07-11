@@ -32,6 +32,10 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('student.home');
         }
 
+        if (Auth::user()->role == 'ta') {
+            return redirect()->route('ta.dashboard');
+        }
+        
         return redirect()->intended(route('dashboard', absolute: false));
 
 

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Request as UserRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 class TAController extends Controller
 {
@@ -23,7 +23,6 @@ class TAController extends Controller
 
     public function update(Request $request, $id)
     {
-       
         $validatedData = $request->validate([
             'status' => 'required|in:pending,accepted,completed',
         ]);
@@ -35,7 +34,7 @@ class TAController extends Controller
             $userRequest->ta_id = Auth::id();
             $userRequest->accepted_at = now();
         } elseif ($validatedData['status'] == 'completed') {
-            // Ensure TA details are set if status changes directly to completed
+           
             if (!$userRequest->ta_id) {
                 $userRequest->ta_id = Auth::id();
                 $userRequest->accepted_at = now();
@@ -46,5 +45,23 @@ class TAController extends Controller
         $userRequest->save();
 
         return redirect()->route('ta.index')->with('success', 'Request status updated successfully.');
+    }
+
+    public function dashboard()
+    {
+        $taId = Auth::id();
+
+        $requestsHandled = UserRequest::where('ta_id', $taId)
+            ->selectRaw('DATE(requested_at) as date, count(*) as count')
+            ->groupBy('date')
+            ->orderBy('date', 'asc')
+            ->get();
+
+        $requestsByStatus = UserRequest::selectRaw('status, count(*) as count')
+            ->groupBy('status')
+            ->where('ta_id', $taId)
+            ->get();
+
+        return view('ta.dashboard', compact('requestsHandled', 'requestsByStatus'));
     }
 }

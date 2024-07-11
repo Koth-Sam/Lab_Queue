@@ -1,5 +1,3 @@
-<!-- resources/views/requests/show.blade.php -->
-
 @extends('layouts.app')
 @section('title', 'View Request Details')
 @section('content')

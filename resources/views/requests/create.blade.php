@@ -1,7 +1,6 @@
 
-
 @extends('layouts.app')
-
+@section('title', 'Add a Request')
 @section('content')
 <div class="bg-white p-6 rounded-lg shadow-md">
     <h1 class="text-2xl font-bold mb-4">Submit a Request</h1>
@@ -12,12 +11,6 @@
         </div>
     @endif
 
-<!-- JavaScript to automatically hide the success message after 5 seconds -->
-<script>
-    setTimeout(function() {
-        document.getElementById('successMessage').classList.add('hidden');
-    }, 5000); // 5000 milliseconds = 5 seconds
-</script>
 
     <form action="{{ route('requests.store') }}" method="POST" enctype="multipart/form-data">
         @csrf

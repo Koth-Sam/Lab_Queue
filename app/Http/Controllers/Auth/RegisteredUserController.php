@@ -11,8 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
-use Illuminate\Support\Facades\Log; // Import the Log faca
-
+use Illuminate\Support\Facades\Log;
 
 class RegisteredUserController extends Controller
 {
@@ -33,7 +32,7 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => ['required', 'in:student,ta,admin'],
         ]);
@@ -42,28 +41,19 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-           // 'role' => $request->role, 
         ]);
 
-// Log the role assignment process
-Log::info('Assigning role', ['role' => $request->role]);
+        // Assign the selected role to the user
+        $user->assignRole($request->role);
 
-
-         // Assign the selected role to the user
-         $user->assignRole($request->role);
-
-// Verify role assignment
-if ($user->hasRole($request->role)) {
-    Log::info('Role assigned successfully', ['user' => $user->id, 'role' => $request->role]);
-} else {
-    Log::error('Role assignment failed', ['user' => $user->id, 'role' => $request->role]);
-}
-
+        // Also save the role in the `role` column if it exists
+        $user->role = $request->role;
+        $user->save();
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect()->route('dashboard');
     }
 }

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@section('title', 'View All Requests')
 @section('content')
 <div class="bg-white p-4 rounded-lg shadow-md">
     <h1 class="text-2xl font-bold mb-4">All Requests</h1>
@@ -31,8 +31,8 @@
                     <th class="py-2 px-4 border-b border-gray-200 cursor-pointer sortable" data-column="4">Status <i class="fas fa-sort"></i></th>
                     <th class="py-2 px-4 border-b border-gray-200 cursor-pointer sortable" data-column="5">Requested Date/Time <i class="fas fa-sort"></i></th>
                     <th class="py-2 px-4 border-b border-gray-200 cursor-pointer sortable" data-column="6">TA Name <i class="fas fa-sort"></i></th>
-                    <th class="py-2 px-4 border-b border-gray-200">Accepted Date/Time</th>
-                    <th class="py-2 px-4 border-b border-gray-200">Completed Date/Time</th>
+                    <th class="py-2 px-4 border-b border-gray-200 cursor-pointer sortable" data-column="7">Accepted Date/Time <i class="fas fa-sort"></i></th>
+                    <th class="py-2 px-4 border-b border-gray-200 cursor-pointer sortable" data-column="8">Completed Date/Time <i class="fas fa-sort"></i></th>
                     <th class="py-2 px-4 border-b border-gray-200">Actions</th>
                 </tr>
             </thead>

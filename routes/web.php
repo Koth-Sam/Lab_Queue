@@ -38,7 +38,8 @@ Route::middleware(['auth', 'role:ta'])->group(function () {
     Route::get('/ta/requests', [TAController::class, 'index'])->name('ta.index');
     Route::get('/ta/requests/{id}', [TAController::class, 'show'])->name('ta.show');
     //Route::post('/ta/requests/{id}', [TAController::class, 'update'])->name('ta.update');
-    Route::put('/ta/requests/{id}', [TAController::class, 'update'])->name('ta.update'); 
+    Route::put('/ta/requests/{id}', [TAController::class, 'update'])->name('ta.update');
+    Route::get('/ta/dashboard', [TAController::class, 'dashboard'])->name('ta.dashboard'); 
 
 });
 
