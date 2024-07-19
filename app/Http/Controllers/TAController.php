@@ -120,13 +120,14 @@ class TAController extends Controller
             ->groupBy('status')
             ->where('ta_id', $taId)
             ->get();
-    
-        $pendingRequests = UserRequest::where('status', 'pending')
-            ->selectRaw('DATE(requested_at) as date, count(*) as count')
-            ->groupBy('date')
+        
+        $requestsHandledByRequestType = UserRequest::where('ta_id', $taId)
+            ->selectRaw('DATE(requested_at) as date, request_type, count(*) as count')
+            ->groupBy('date', 'request_type')
             ->orderBy('date', 'asc')
             ->get();
-    
+
+        
         $requestsHandledByStatus = UserRequest::where('ta_id', $taId)
             ->selectRaw('DATE(requested_at) as date, status, count(*) as count')
             ->groupBy('date', 'status')
@@ -135,9 +136,10 @@ class TAController extends Controller
     
         $averageResponseTime = UserRequest::where('ta_id', $taId)
             ->whereNotNull('completed_at')
-            ->selectRaw('DATE(requested_at) as date, AVG(TIMESTAMPDIFF(HOUR, requested_at, completed_at)) as avg_response_time')
-            ->groupBy('date')
-            ->orderBy('date', 'asc')
+            ->selectRaw('YEARWEEK(completed_at, 3) as week, request_type, 
+                AVG(TIMESTAMPDIFF(MINUTE, accepted_at, completed_at)) as avg_response_time_minutes')
+            ->groupBy('week', 'request_type')
+            ->orderBy('week', 'asc')
             ->get();
     
         $weeklyPerformance = UserRequest::where('ta_id', $taId)
@@ -149,7 +151,7 @@ class TAController extends Controller
         return view('ta.dashboard', compact(
             'requestsHandled',
             'requestsByStatus',
-            'pendingRequests',
+            'requestsHandledByRequestType',
             'requestsHandledByStatus',
             'averageResponseTime',
             'weeklyPerformance'

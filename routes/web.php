@@ -47,7 +47,7 @@ Route::middleware(['auth', 'role:ta'])->group(function () {
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/requests', [AdminController::class, 'index'])->name('admin.index');
     Route::get('/admin/requests/{id}', [AdminController::class, 'show'])->name('admin.show');
-    Route::post('/admin/requests/{id}', [AdminController::class, 'update'])->name('admin.update');
+    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
 });
 

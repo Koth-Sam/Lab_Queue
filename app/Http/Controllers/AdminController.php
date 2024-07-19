@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request as HttpRequest;
-use App\Models\Request;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Request as UserRequest;
 
 class AdminController extends Controller
 {
@@ -58,7 +58,7 @@ class AdminController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(HTTPRequest $request, string $id)
+    public function update(Request $request, string $id)
     {
         //
         $userRequest = Request::findOrFail($id);
@@ -84,4 +84,58 @@ class AdminController extends Controller
     {
         //
     }
+
+    public function dashboard()
+    {
+   
+        $taId = Auth::id();
+
+        $requestsHandled = UserRequest::where('ta_id', $taId)
+            ->selectRaw('DATE(requested_at) as date, count(*) as count')
+            ->groupBy('date')
+            ->orderBy('date', 'asc')
+            ->get();
+    
+        $requestsByStatus = UserRequest::selectRaw('status, count(*) as count')
+            ->groupBy('status')
+            ->where('ta_id', $taId)
+            ->get();
+        
+        $requestsHandledByRequestType = UserRequest::where('ta_id', $taId)
+            ->selectRaw('DATE(requested_at) as date, request_type, count(*) as count')
+            ->groupBy('date', 'request_type')
+            ->orderBy('date', 'asc')
+            ->get();
+
+        
+        $requestsHandledByStatus = UserRequest::where('ta_id', $taId)
+            ->selectRaw('DATE(requested_at) as date, status, count(*) as count')
+            ->groupBy('date', 'status')
+            ->orderBy('date', 'asc')
+            ->get();
+    
+        $averageResponseTime = UserRequest::where('ta_id', $taId)
+            ->whereNotNull('completed_at')
+            ->selectRaw('YEARWEEK(completed_at, 3) as week, request_type, 
+                AVG(TIMESTAMPDIFF(MINUTE, accepted_at, completed_at)) as avg_response_time_minutes')
+            ->groupBy('week', 'request_type')
+            ->orderBy('week', 'asc')
+            ->get();
+    
+        $weeklyPerformance = UserRequest::where('ta_id', $taId)
+            ->selectRaw('YEARWEEK(requested_at, 3) as week, count(*) as count')
+            ->groupBy('week')
+            ->orderBy('week', 'asc')
+            ->get();
+  
+        return view('ta.dashboard', compact(
+            'requestsHandled',
+            'requestsByStatus',
+            'requestsHandledByRequestType',
+            'requestsHandledByStatus',
+            'averageResponseTime',
+            'weeklyPerformance'
+        ));
+    }
+
 }
