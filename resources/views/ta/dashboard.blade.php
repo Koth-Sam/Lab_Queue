@@ -38,11 +38,11 @@
             </div>
         </div>
 
-        <!-- Chart Card: Average Response Time -->
+        <!-- Chart Card: Number of Requests by Course -->
         <div class="bg-white p-6 rounded-lg shadow-md flex flex-col h-96">
-            <h2 class="text-xl font-semibold mb-4">Average Response Time</h2>
+            <h2 class="text-xl font-semibold mb-4">Number of Requests Handled by Course</h2>
             <div class="flex-grow flex justify-center items-center">
-                <canvas id="averageResponseTimeChart" class="w-full h-full"></canvas>
+                <canvas id="requestsHandledByCourseChart" class="w-full h-full"></canvas>
             </div>
         </div>
 
@@ -297,64 +297,33 @@ createChart(document.getElementById('requestsHandledByRequestTypeChart').getCont
                 }
             });
     
-            // Average Response Time Chart
-            const averageResponseTimeData = @json($averageResponseTime);
-    
-            const weekLabels = Array.from(new Set(averageResponseTimeData.map(data => {
-                const year = Math.floor(data.week / 100);
-                const weekNumber = data.week % 100;
-                return `${year}-${weekNumber.toString().padStart(2, '0')}`;
-            })));
-    
-            const signOffTimesInMinutes = weekLabels.map(label => {
-                const entry = averageResponseTimeData.find(data => {
-                    const year = Math.floor(data.week / 100);
-                    const weekNumber = data.week % 100;
-                    const weekLabel = `${year}-${weekNumber.toString().padStart(2, '0')}`;
-                    return weekLabel === label && data.request_type === 'sign-off';
-                });
-                return entry ? entry.avg_response_time_minutes : 0;
-            });
-    
-            const assistanceTimesInMinutes = weekLabels.map(label => {
-                const entry = averageResponseTimeData.find(data => {
-                    const year = Math.floor(data.week / 100);
-                    const weekNumber = data.week % 100;
-                    const weekLabel = `${year}-${weekNumber.toString().padStart(2, '0')}`;
-                    return weekLabel === label && data.request_type === 'assistance';
-                });
-                return entry ? entry.avg_response_time_minutes : 0;
-            });
-    
-            createChart(document.getElementById('averageResponseTimeChart').getContext('2d'), 'line', {
-                labels: weekLabels,
-                datasets: [
-                    {
-                        label: 'Sign-Off Avg Response Time (mins)',
-                        data: signOffTimesInMinutes,
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        fill: false
-                    },
-                    {
-                        label: 'Assistance Avg Response Time (mins)',
-                        data: assistanceTimesInMinutes,
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        fill: false
-                    }
-                ]
-            }, {
+            const requestsHandledByCourseData = @json($requestsHandledByCourse);
+        const courseLabels = requestsHandledByCourseData.map(data => data.course_name);
+        const courseCounts = requestsHandledByCourseData.map(data => data.count);
+
+        new Chart(document.getElementById('requestsHandledByCourseChart'), {
+            type: 'bar',
+            data: {
+                labels: courseLabels,
+                datasets: [{
+                    label: 'Number of Requests',
+                    data: courseCounts,
+                    backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                    borderColor: 'rgba(255, 159, 64, 1)',
+                    borderWidth: 1,
+                    fill: true,
+                }]
+            },
+            options: {
                 responsive: true,
-                maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: 'top'
+                        position: 'top',
                     },
                     tooltip: {
                         callbacks: {
                             label: function(tooltipItem) {
-                                return `${tooltipItem.dataset.label}: ${tooltipItem.raw.toFixed(2)} minutes`;
+                                return `${tooltipItem.label}: ${tooltipItem.raw.toLocaleString()}`;
                             }
                         }
                     }
@@ -363,32 +332,30 @@ createChart(document.getElementById('requestsHandledByRequestTypeChart').getCont
                     x: {
                         title: {
                             display: true,
-                            text: 'Week'
+                            text: 'Course'
                         },
-                        ticks: {
-                            callback: function(value) {
-                                return value; // Adjust tick labels as needed
-                            }
-                        },
-                        offset: true
                     },
                     y: {
                         title: {
                             display: true,
-                            text: 'Avg Response Time (minutes)'
+                            text: 'Number of Requests'
                         },
                         min: 0,
                         ticks: {
                             beginAtZero: true,
-                            stepSize: 10,
+                            stepSize: 1,
                             callback: function(value) {
-                                return value.toFixed(0);
+                                if (Number.isInteger(value)) {
+                                    return value;
+                                }
                             }
                         }
                     }
                 }
-            });
-    
+            }
+        });
+
+          
             // Weekly Performance Chart
             const weeklyPerformanceData = @json($weeklyPerformance);
             const weeklyLabels = weeklyPerformanceData.map(data => {

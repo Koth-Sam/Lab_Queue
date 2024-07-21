@@ -134,12 +134,10 @@ class TAController extends Controller
             ->orderBy('date', 'asc')
             ->get();
     
-        $averageResponseTime = UserRequest::where('ta_id', $taId)
-            ->whereNotNull('completed_at')
-            ->selectRaw('YEARWEEK(completed_at, 3) as week, request_type, 
-                AVG(TIMESTAMPDIFF(MINUTE, accepted_at, completed_at)) as avg_response_time_minutes')
-            ->groupBy('week', 'request_type')
-            ->orderBy('week', 'asc')
+        $requestsHandledByCourse = UserRequest::where('ta_id', $taId)
+            ->selectRaw('course_name, count(*) as count')
+            ->groupBy('course_name')
+            ->orderBy('course_name', 'asc')
             ->get();
     
         $weeklyPerformance = UserRequest::where('ta_id', $taId)
@@ -153,7 +151,7 @@ class TAController extends Controller
             'requestsByStatus',
             'requestsHandledByRequestType',
             'requestsHandledByStatus',
-            'averageResponseTime',
+            'requestsHandledByCourse',
             'weeklyPerformance'
         ));
     }
