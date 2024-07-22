@@ -1,19 +1,16 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Request as UserRequest;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
-        //
         $query = UserRequest::query();
 
         // Handle filtering
@@ -72,52 +69,33 @@ class AdminController extends Controller
         }
 
         return view('admin.index', compact('requests', 'uniqueCourses', 'uniqueCourseCodes', 'uniqueRequestTypes', 'uniqueStatuses', 'uniqueTANames'));
-       
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         //
-        
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         //
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
-        //
         $request = UserRequest::findOrFail($id);
         $request->screenshot = json_decode($request->screenshot);
 
         return view('admin.show', compact('request'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(string $id)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
-        //
         $userRequest = UserRequest::findOrFail($id);
         $userRequest->status = $request->status;
 
@@ -132,11 +110,7 @@ class AdminController extends Controller
 
         return redirect()->route('admin.index')->with('success', 'Request status updated successfully.');
     }
-    
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         //
@@ -144,49 +118,81 @@ class AdminController extends Controller
 
     public function dashboard()
     {
-   
         $requestsSummary = UserRequest::selectRaw('
-        COUNT(*) as total_requests,
-        SUM(CASE WHEN status = "pending" THEN 1 ELSE 0 END) as pending_requests,
-        SUM(CASE WHEN status = "accepted" THEN 1 ELSE 0 END) as accepted_requests,
-        SUM(CASE WHEN status = "completed" THEN 1 ELSE 0 END) as completed_requests
-    ')->first();
+            COUNT(*) as total_requests,
+            SUM(CASE WHEN status = "pending" THEN 1 ELSE 0 END) as pending_requests,
+            SUM(CASE WHEN status = "accepted" THEN 1 ELSE 0 END) as accepted_requests,
+            SUM(CASE WHEN status = "completed" THEN 1 ELSE 0 END) as completed_requests
+        ')->first();
 
-    $requestsHandledByTA = UserRequest::selectRaw('
-        ta_id,
-        COUNT(*) as count
-    ')->groupBy('ta_id')->with('ta')->get();
-
-    $averageResponseTimeByTA = UserRequest::whereNotNull('completed_at')
-        ->selectRaw('
+        $requestsHandledByTA = UserRequest::selectRaw('
             ta_id,
-            AVG(TIMESTAMPDIFF(MINUTE, accepted_at, completed_at)) as avg_response_time
+            COUNT(*) as count
         ')->groupBy('ta_id')->with('ta')->get();
 
-    $requestsByCourse = UserRequest::selectRaw('
-        course_name,
-        COUNT(*) as count
-    ')->groupBy('course_name')->get();
-
-    $requestsTrend = UserRequest::selectRaw('
-        DATE(requested_at) as date,
-        COUNT(*) as count
-    ')->groupBy('date')->orderBy('date', 'asc')->get();
-
-    $requestsTrendByType = UserRequest::selectRaw('DATE(requested_at) as date, request_type, count(*) as count')
-        ->groupBy('date', 'request_type')
-        ->orderBy('date', 'asc')
+        $weeklyPerformanceByCourse = UserRequest::selectRaw('
+            YEARWEEK(requested_at, 3) as week,
+            course_name,
+            COUNT(*) as count
+        ')
+        ->groupBy('week', 'course_name')
+        ->orderBy('week', 'asc')
         ->get();
 
-    return view('admin.dashboard', compact(
-        'requestsSummary',
-        'requestsHandledByTA',
-        'averageResponseTimeByTA',
-        'requestsByCourse',
-        'requestsTrend',
-        'requestsTrendByType'
-    ));
-}
+        $courses = UserRequest::distinct()->pluck('course_name');
+
+        $averageResponseTimeByTA = UserRequest::whereNotNull('completed_at')
+            ->selectRaw('
+                ta_id,
+                AVG(TIMESTAMPDIFF(MINUTE, accepted_at, completed_at)) as avg_response_time
+            ')->groupBy('ta_id')->with('ta')->get();
+
+        $requestsByCourse = UserRequest::selectRaw('
+            course_name,
+            COUNT(*) as count
+        ')->groupBy('course_name')->get();
+
+        $requestsTrend = UserRequest::selectRaw('
+            DATE(requested_at) as date,
+            COUNT(*) as count
+        ')->groupBy('date')->orderBy('date', 'asc')->get();
+
+        $requestsTrendByType = UserRequest::selectRaw('DATE(requested_at) as date, request_type, count(*) as count')
+            ->groupBy('date', 'request_type')
+            ->orderBy('date', 'asc')
+            ->get();
+
+            $requestsByTAAndType = UserRequest::select('ta_id', 'request_type', DB::raw('count(*) as count'))
+            ->whereIn('status', ['accepted', 'completed'])
+            ->groupBy('ta_id', 'request_type')
+            ->with('ta:id,name')
+            ->get()
+            ->groupBy('ta_id')
+            ->map(function ($requests, $taId) {
+                $taName = $requests->first()->ta->name ?? 'N/A';
+                $assistance = $requests->where('request_type', 'assistance')->sum('count');
+                $signOff = $requests->where('request_type', 'sign-off')->sum('count');
+
+                return [
+                    'ta' => $taName,
+                    'assistance' => $assistance,
+                    'sign-off' => $signOff,
+                ];
+            })
+            ->values();
+
+        return view('admin.dashboard', compact(
+            'requestsSummary',
+            'requestsHandledByTA',
+            'weeklyPerformanceByCourse',
+            'courses',
+            'averageResponseTimeByTA',
+            'requestsByCourse',
+            'requestsTrend',
+            'requestsTrendByType',
+            'requestsByTAAndType'
+        ));
+    }
 
     public function getCourses()
     {
@@ -213,5 +219,49 @@ class AdminController extends Controller
         return response()->json($requestsHandledByTA);
     }
 
+    public function getWeeklyPerformance(Request $request)
+    {
+        $courseName = $request->query('course_name');
+    
+        $weeklyPerformanceByCourse = UserRequest::selectRaw('YEARWEEK(requested_at, 3) as week, ta_id, count(*) as count')
+            ->where('course_name', $courseName)
+            ->groupBy('week', 'ta_id')
+            ->orderBy('week', 'asc')
+            ->with('ta')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'week' => $item->week,
+                    'ta' => $item->ta ? $item->ta->name : 'N/A',
+                    'count' => $item->count
+                ];
+            });
+    
+        return response()->json($weeklyPerformanceByCourse);
+    }
+
+
+    public function getRequestsByTAAndType()
+    {
+        // Fetch and group data
+        $data = UserRequest::select('ta_id', 'request_type', DB::raw('count(*) as count'))
+            ->whereIn('status', ['accepted', 'completed']) // Ensure to only consider accepted and completed requests
+            ->groupBy('ta_id', 'request_type')
+            ->with('ta:id,name') // Ensure `ta` relationship is eager loaded with only required fields
+            ->get()
+            ->groupBy('ta_id'); // Group data by TA
+
+        // Format data for chart
+        $formattedData = $data->map(function ($requests, $taId) {
+            $ta = $requests->first()->ta; // Assuming all requests for a TA have the same TA data
+            return [
+                'ta' => $ta ? $ta->name : 'Unknown',
+                'assistance' => $requests->where('request_type', 'assistance')->sum('count'),
+                'sign-off' => $requests->where('request_type', 'sign-off')->sum('count'),
+            ];
+        })->values(); // Convert to a collection
+
+        return response()->json($formattedData);
+    }
 
 }

@@ -50,6 +50,30 @@
             </div>
         </div>
 
+        <!-- Weekly Performance Stacked Bar Chart -->
+        <div class="bg-white p-4 rounded-lg shadow-md">
+            <h2 class="text-lg font-bold mb-2">Weekly Performance of TAs</h2>
+
+            <!-- Dropdown for Course Selection -->
+            <div class="mb-4">
+                <label for="weeklyPerformanceCourseSelect" class="block text-md font-medium mb-2">Course</label>
+                <select id="weeklyPerformanceCourseSelect" class="form-select block w-full p-2 border rounded" style="width: 320px; height: 38px;">
+                    <!-- Options will be populated dynamically -->
+                </select>
+            </div>
+
+            <div class="flex justify-center items-center">
+                <canvas id="weeklyPerformanceChart" class="w-full h-full"></canvas>
+            </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-lg shadow-md">
+            <h2 class="text-lg font-bold mb-2">Requests Handled by TA by Request Type</h2>
+            <div class="flex justify-center items-center">
+                <canvas id="requestsByTAAndTypeChart" class="w-full h-64"></canvas>
+            </div>
+        </div>
+
         <!-- Average Response Time by TA -->
         <div class="bg-white p-4 rounded-lg shadow-md">
             <h2 class="text-lg font-bold mb-2">Average Response Time by TA</h2>
@@ -81,30 +105,30 @@
                 <canvas id="requestsTrendByTypeChart" class="w-full h-full"></canvas>
             </div>
         </div>
-
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
     const courseSelect = document.getElementById('courseSelect');
+    const weeklyPerformanceCourseSelect = document.getElementById('weeklyPerformanceCourseSelect');
     const requestsHandledByTAChart = document.getElementById('requestsHandledByTAChart').getContext('2d');
-    let chartInstance;
+    let requestsHandledByTAChartInstance;
 
-    function updateChart(courseName) {
+    function updateRequestsHandledByTAChart(courseName) {
         fetch(`/api/requests-handled-by-ta?course_name=${courseName}`)
             .then(response => response.json())
             .then(data => {
                 const taLabels = data.map(item => item.ta);
                 const taCounts = data.map(item => item.count);
 
-                if (chartInstance) {
-                    chartInstance.data.labels = taLabels;
-                    chartInstance.data.datasets[0].data = taCounts;
-                    chartInstance.update();
+                if (requestsHandledByTAChartInstance) {
+                    requestsHandledByTAChartInstance.data.labels = taLabels;
+                    requestsHandledByTAChartInstance.data.datasets[0].data = taCounts;
+                    requestsHandledByTAChartInstance.update();
                 } else {
-                    chartInstance = new Chart(requestsHandledByTAChart, {
+                    requestsHandledByTAChartInstance = new Chart(requestsHandledByTAChart, {
                         type: 'bar',
                         data: {
                             labels: taLabels,
@@ -137,9 +161,7 @@
                                         beginAtZero: true,
                                         stepSize: 1,
                                         callback: function(value) {
-                                            if (Number.isInteger(value)) {
-                                                return value;
-                                            }
+                                            return Number.isInteger(value) ? value : '';
                                         }
                                     }
                                 }
@@ -150,37 +172,188 @@
             });
     }
 
-    // Fetch courses and populate the dropdown
-    fetch('/api/courses')
-        .then(response => response.json())
-        .then(courses => {
-            // Sort courses alphabetically
-            courses.sort();
+    function updateWeeklyPerformanceChart(courseName) {
+        fetch(`/api/get-weekly-performance?course_name=${courseName}`)
+            .then(response => response.json())
+            .then(data => {
+                const weeks = [...new Set(data.map(item => `Week ${item.week}`))];
+                const taNames = [...new Set(data.map(item => item.ta))];
+                const datasets = taNames.map(ta => {
+                    const taData = data.filter(item => item.ta === ta);
+                    return {
+                        label: ta,
+                        data: weeks.map(week => {
+                            const entry = taData.find(d => `Week ${d.week}` === week);
+                            return entry ? entry.count : 0;
+                        }),
+                        backgroundColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.2)`,
+                        borderColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 1)`,
+                        borderWidth: 1,
+                    };
+                });
 
-            courses.forEach(course => {
-                const option = document.createElement('option');
-                option.value = course;
-                option.textContent = course;
-                courseSelect.appendChild(option);
+                weeklyPerformanceChart.data.labels = weeks;
+                weeklyPerformanceChart.data.datasets = datasets;
+                weeklyPerformanceChart.update();
             });
+    }
 
-            // Update chart when a course is selected
-            courseSelect.addEventListener('change', function () {
-                updateChart(this.value);
+    function fetchCourses() {
+        fetch('/api/courses')
+            .then(response => response.json())
+            .then(courses => {
+                courses.sort();
+                courses.forEach(course => {
+                    const option = document.createElement('option');
+                    option.value = course;
+                    option.textContent = course;
+
+                    // Add to both dropdowns
+                    courseSelect.appendChild(option);
+                    weeklyPerformanceCourseSelect.appendChild(option.cloneNode(true));
+                });
+
+                // Update charts when a course is selected
+                courseSelect.addEventListener('change', function () {
+                    updateRequestsHandledByTAChart(this.value);
+                });
+
+                weeklyPerformanceCourseSelect.addEventListener('change', function () {
+                    updateWeeklyPerformanceChart(this.value);
+                });
+
+                // Initialize the charts with the first course
+                if (courses.length > 0) {
+                    updateRequestsHandledByTAChart(courses[0]);
+                    updateWeeklyPerformanceChart(courses[0]);
+                }
             });
+    }
 
-            // Initialize the chart with the first course
-            if (courses.length > 0) {
-                updateChart(courses[0]);
+    const weeklyPerformanceChartCtx = document.getElementById('weeklyPerformanceChart').getContext('2d');
+    let weeklyPerformanceChart = new Chart(weeklyPerformanceChartCtx, {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: [],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    stacked: true,
+                    title: {
+                        display: true,
+                        text: 'Week'
+                    }
+                },
+                y: {
+                    stacked: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Requests'
+                    },
+                    min: 0,
+                    ticks: {
+                        beginAtZero: true,
+                        stepSize: 1,
+                        callback: function(value) {
+                            return Number.isInteger(value) ? value : '';
+                        }
+                    }
+                }
             }
+        }
+    });
+
+    fetchCourses();
+
+    function updateRequestsByTAAndTypeChart() {
+    fetch('/api/requests-by-ta-and-type')
+        .then(response => response.json())
+        .then(data => {
+            const taLabels = data.map(item => item.ta);
+            const assistanceCounts = data.map(item => item.assistance);
+            const signOffCounts = data.map(item => item['sign-off']);
+
+            new Chart(document.getElementById('requestsByTAAndTypeChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: taLabels,
+                    datasets: [
+                        {
+                            label: 'Assistance Requests',
+                            data: assistanceCounts,
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1,
+                        },
+                        {
+                            label: 'Sign-Off Requests',
+                            data: signOffCounts,
+                            backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                            borderColor: 'rgba(153, 102, 255, 1)',
+                            borderWidth: 1,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'TA'
+                            },
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Number of Requests'
+                            },
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                callback: function(value) {
+                                    return Number.isInteger(value) ? value : '';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y;
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
         });
+}
+
+updateRequestsByTAAndTypeChart();
 
     // Average Response Time by TA
     const averageResponseTimeByTAData = @json($averageResponseTimeByTA);
     const taResponseTimeLabels = averageResponseTimeByTAData.map(data => data.ta ? data.ta.name : 'N/A');
     const taResponseTimeCounts = averageResponseTimeByTAData.map(data => data.avg_response_time);
 
-    new Chart(document.getElementById('averageResponseTimeByTAChart'), {
+    new Chart(document.getElementById('averageResponseTimeByTAChart').getContext('2d'), {
         type: 'bar',
         data: {
             labels: taResponseTimeLabels,
@@ -271,12 +444,13 @@
         aspectRatio: 0.5,
     });
 
+    
     // Requests Trend Over Time
     const requestsTrendData = @json($requestsTrend);
     const trendLabels = requestsTrendData.map(data => data.date);
     const trendCounts = requestsTrendData.map(data => data.count);
 
-    new Chart(document.getElementById('requestsTrendChart'), {
+    new Chart(document.getElementById('requestsTrendChart').getContext('2d'), {
         type: 'line',
         data: {
             labels: trendLabels,
@@ -288,8 +462,6 @@
                 fill: true,
             }]
         },
-
-     
         options: {
             responsive: true,
             maintainAspectRatio: false,
@@ -298,8 +470,7 @@
                     title: {
                         display: true,
                         text: 'Date'
-                    },
-                    offset:true
+                    }
                 },
                 y: {
                     title: {
@@ -311,9 +482,7 @@
                         beginAtZero: true,
                         stepSize: 1,
                         callback: function(value) {
-                            if (Number.isInteger(value)) {
-                                return value;
-                            }
+                            return Number.isInteger(value) ? value : '';
                         }
                     }
                 }
@@ -323,61 +492,57 @@
 
     // New Requests Trend Over Time by Type
     const requestsTrendByTypeData = @json($requestsTrendByType);
-        const trendLabelsByType = [...new Set(requestsTrendByTypeData.map(data => data.date))];
+    const trendLabelsByType = [...new Set(requestsTrendByTypeData.map(data => data.date))];
+    const requestTypes = [...new Set(requestsTrendByTypeData.map(data => data.request_type))];
 
-        const requestTypes = [...new Set(requestsTrendByTypeData.map(data => data.request_type))];
-        const datasetsByType = requestTypes.map(type => {
-            const dataForType = requestsTrendByTypeData.filter(data => data.request_type === type);
-            return {
-                label: type,
-                data: trendLabelsByType.map(date => {
-                    const entry = dataForType.find(d => d.date === date);
-                    return entry ? entry.count : 0;
-                }),
-                borderColor: type === 'assistance' ? 'rgba(75, 192, 192, 1)' : 'rgba(153, 102, 255, 1)',
-                backgroundColor: type === 'assistance' ? 'rgba(75, 192, 192, 0.2)' : 'rgba(153, 102, 255, 0.2)',
-                fill: false
-            };
-        });
+    const datasetsByType = requestTypes.map(type => {
+        const dataForType = requestsTrendByTypeData.filter(data => data.request_type === type);
+        return {
+            label: type,
+            data: trendLabelsByType.map(date => {
+                const entry = dataForType.find(d => d.date === date);
+                return entry ? entry.count : 0;
+            }),
+            borderColor: type === 'assistance' ? 'rgba(75, 192, 192, 1)' : 'rgba(153, 102, 255, 1)',
+            backgroundColor: type === 'assistance' ? 'rgba(75, 192, 192, 0.2)' : 'rgba(153, 102, 255, 0.2)',
+            fill: false
+        };
+    });
 
-        new Chart(document.getElementById('requestsTrendByTypeChart'), {
-            type: 'line',
-            data: {
-                labels: trendLabelsByType,
-                datasets: datasetsByType,
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Date'
-                        },
-                        offset:true
+    new Chart(document.getElementById('requestsTrendByTypeChart').getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: trendLabelsByType,
+            datasets: datasetsByType,
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Date'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Number of Requests'
                     },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Number of Requests'
-                        },
-                        min: 0,
-                        ticks: {
-                            beginAtZero: true,
-                            stepSize: 1,
-                            callback: function(value) {
-                                if (Number.isInteger(value)) {
-                                    return value;
-                                }
-                            }
+                    min: 0,
+                    ticks: {
+                        beginAtZero: true,
+                        stepSize: 1,
+                        callback: function(value) {
+                            return Number.isInteger(value) ? value : '';
                         }
                     }
                 }
             }
-        });
+        }
+    });
 
 });
-
 </script>
 @endsection

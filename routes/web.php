@@ -32,28 +32,30 @@ Route::middleware(['auth', 'role:student'])->group(function () {
 
 });
 
-// TA routes
+
+    // TA routes
 Route::middleware(['auth', 'role:ta'])->group(function () {
 
     Route::get('/ta/requests', [TAController::class, 'index'])->name('ta.index');
     Route::get('/ta/requests/{id}', [TAController::class, 'show'])->name('ta.show');
-    Route::post('/ta/requests/{id}', [TAController::class, 'update'])->name('ta.update');
     Route::put('/ta/requests/{id}', [TAController::class, 'update'])->name('ta.update');
     Route::get('/ta/dashboard', [TAController::class, 'dashboard'])->name('ta.dashboard'); 
-
 });
+
 
 //Admin routes
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/requests', [AdminController::class, 'index'])->name('admin.index');
     Route::get('/admin/requests/{id}', [AdminController::class, 'show'])->name('admin.show');
-    Route::put('/ta/requests/{id}', [TAController::class, 'update'])->name('admin.update');
+    Route::put('/admin/requests/{id}', [AdminController::class, 'update'])->name('admin.update');
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
     //Dashboard
     Route::get('/api/courses', [AdminController::class, 'getCourses'])->name('api.courses');
     Route::get('/api/requests-handled-by-ta', [AdminController::class, 'getRequestsHandledByTA'])->name('api.requests-handled-by-ta');
-
+    Route::get('/api/get-weekly-performance', [AdminController::class, 'getWeeklyPerformance']);
+    Route::get('/api/requests-by-ta-and-type', [AdminController::class, 'getRequestsByTAAndType'])->name('api.requests-by-ta-and-type');
+    
 
 });
 
