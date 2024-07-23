@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RequestController;
 use App\Http\Controllers\TAController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\FeedbackController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -29,6 +30,8 @@ Route::middleware(['auth', 'role:student'])->group(function () {
     Route::get('/requests', [RequestController::class, 'index'])->name('requests.index');
     Route::get('/requests/{id}', [RequestController::class, 'show'])->name('requests.show');
     Route::get('/home', [RequestController::class, 'studentHome'])->name('student.home');
+    Route::get('/requests/{id}/feedback', [FeedbackController::class, 'create'])->name('feedback.create');
+    Route::post('/requests/{id}/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
 
 });
 
@@ -55,6 +58,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/api/requests-handled-by-ta', [AdminController::class, 'getRequestsHandledByTA'])->name('api.requests-handled-by-ta');
     Route::get('/api/get-weekly-performance', [AdminController::class, 'getWeeklyPerformance']);
     Route::get('/api/requests-by-ta-and-type', [AdminController::class, 'getRequestsByTAAndType'])->name('api.requests-by-ta-and-type');
+    Route::get('/api/requests-handled-by-ta-by-course', [AdminController::class, 'getRequestsHandledByTAByCourse'])->name('api.requests-by-ta-and-type');;
     
 
 });

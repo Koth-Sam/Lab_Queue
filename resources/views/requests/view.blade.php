@@ -61,6 +61,13 @@
                                 View Details
                             </a>
                         </td>
+                        <td class="py-2 px-4 border-b border-gray-200">
+                            @if($request->status === 'completed')
+                                <a href="{{ route('feedback.create', $request->id) }}" class="bg-black text-black border-4 border-black p-2 rounded">Rate Your Experience</a>
+                            @else
+                                <span class="text-gray-500"></span>
+                            @endif
+                        </td>
                         
                     </tr>
                 @endforeach

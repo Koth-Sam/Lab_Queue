@@ -162,7 +162,7 @@ class AdminController extends Controller
             ->orderBy('date', 'asc')
             ->get();
 
-            $requestsByTAAndType = UserRequest::select('ta_id', 'request_type', DB::raw('count(*) as count'))
+        $requestsByTAAndType = UserRequest::select('ta_id', 'request_type', DB::raw('count(*) as count'))
             ->whereIn('status', ['accepted', 'completed'])
             ->groupBy('ta_id', 'request_type')
             ->with('ta:id,name')
@@ -181,6 +181,32 @@ class AdminController extends Controller
             })
             ->values();
 
+        $requestsByCourseByTAByType = UserRequest::selectRaw('
+            course_name,
+            ta_id,
+            request_type,
+            COUNT(*) as count
+        ')
+            ->groupBy('course_name', 'ta_id', 'request_type')
+            ->with('ta:id,name')
+            ->get()
+            ->groupBy('course_name')
+            ->map(function ($requestsByTA, $courseName) {
+            return $requestsByTA->groupBy('ta_id')
+                ->map(function ($requests, $taId) use ($courseName) {
+                    $taName = $requests->first()->ta->name ?? 'N/A';
+                    $assistance = $requests->where('request_type', 'assistance')->sum('count');
+                    $signOff = $requests->where('request_type', 'sign-off')->sum('count');
+    
+                    return [
+                        'course' => $courseName,
+                        'ta' => $taName,
+                        'assistance' => $assistance,
+                        'sign-off' => $signOff,
+                    ];
+                });
+        });
+
         return view('admin.dashboard', compact(
             'requestsSummary',
             'requestsHandledByTA',
@@ -190,7 +216,8 @@ class AdminController extends Controller
             'requestsByCourse',
             'requestsTrend',
             'requestsTrendByType',
-            'requestsByTAAndType'
+            'requestsByTAAndType',
+            'requestsByCourseByTAByType'
         ));
     }
 
@@ -263,5 +290,36 @@ class AdminController extends Controller
 
         return response()->json($formattedData);
     }
+
+    public function getRequestsHandledByTAByCourse(Request $request)
+{
+    $courseName = $request->query('course_name');
+
+    if (!$courseName) {
+        return response()->json([]);
+    }
+
+    // Fetch the data grouped by TA and request type
+    $requestsHandledByTA = UserRequest::where('course_name', $courseName)
+        ->select('ta_id', 'request_type', DB::raw('count(*) as count'))
+        ->groupBy('ta_id', 'request_type')
+        ->with('ta:id,name')
+        ->get()
+        ->groupBy('ta_id')
+        ->map(function ($requests, $taId) {
+            $taName = $requests->first()->ta->name ?? 'N/A';
+            $assistance = $requests->where('request_type', 'assistance')->sum('count');
+            $signOff = $requests->where('request_type', 'sign-off')->sum('count');
+
+            return [
+                'ta' => $taName,
+                'assistance' => $assistance,
+                'sign-off' => $signOff,
+            ];
+        })
+        ->values();
+
+    return response()->json($requestsHandledByTA);
+}
 
 }

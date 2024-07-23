@@ -15,6 +15,14 @@ export default {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
         },
+
+        colors: {
+            'black-500': '#000000', // or your desired black shade
+          },
+
+          borderOpacity: {
+            '100': '1',
+          },
     },
 
     plugins: [forms],

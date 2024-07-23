@@ -67,10 +67,28 @@
             </div>
         </div>
 
+        <!-- Requests Handled by TA by Request Type by Course Bar Chart -->
+        <div class="bg-white p-4 rounded-lg shadow-md">
+            <h2 class="text-lg font-bold mb-2">Requests Handled by TA by Request Type by Course </h2>
+
+            <!-- Dropdown for Course Selection -->
+            <div class="mb-4">
+                <label for="TAPerformanceByTypeCourseSelect" class="block text-md font-medium mb-2">Course</label>
+                <select id="TAPerformanceByTypeCourseSelect" class="form-select block w-full p-2 border rounded" style="width: 320px; height: 38px;">
+                    <!-- Options will be populated dynamically -->
+                </select>
+            </div>
+
+            <div class="flex justify-center items-center">
+                <canvas id="TAPerformanceByTypeCourseChart" class="w-full h-full"></canvas>
+            </div>
+        </div>
+
+        <!-- Requests Handled by TA by Request Type -->
         <div class="bg-white p-4 rounded-lg shadow-md">
             <h2 class="text-lg font-bold mb-2">Requests Handled by TA by Request Type</h2>
-            <div class="flex justify-center items-center">
-                <canvas id="requestsByTAAndTypeChart" class="w-full h-64"></canvas>
+            <div class="flex-grow flex justify-center items-center">
+                <canvas id="requestsByTAAndTypeChart" class="w-full h-full"></canvas>
             </div>
         </div>
 
@@ -113,8 +131,11 @@
 document.addEventListener('DOMContentLoaded', function () {
     const courseSelect = document.getElementById('courseSelect');
     const weeklyPerformanceCourseSelect = document.getElementById('weeklyPerformanceCourseSelect');
-    const requestsHandledByTAChart = document.getElementById('requestsHandledByTAChart').getContext('2d');
+    const TAPerformanceByTypeCourseSelect = document.getElementById('TAPerformanceByTypeCourseSelect');
+
     let requestsHandledByTAChartInstance;
+    let weeklyPerformanceChart;
+    let TAPerformanceByTypeCourseChart;
 
     function updateRequestsHandledByTAChart(courseName) {
         fetch(`/api/requests-handled-by-ta?course_name=${courseName}`)
@@ -128,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     requestsHandledByTAChartInstance.data.datasets[0].data = taCounts;
                     requestsHandledByTAChartInstance.update();
                 } else {
-                    requestsHandledByTAChartInstance = new Chart(requestsHandledByTAChart, {
+                    requestsHandledByTAChartInstance = new Chart(document.getElementById('requestsHandledByTAChart').getContext('2d'), {
                         type: 'bar',
                         data: {
                             labels: taLabels,
@@ -198,7 +219,10 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
 
-    function fetchCourses() {
+    function fetchCoursesForElement(selectElement, updateChartCallback) {
+        // Clear existing options to prevent duplicates
+        selectElement.innerHTML = '';
+
         fetch('/api/courses')
             .then(response => response.json())
             .then(courses => {
@@ -207,31 +231,35 @@ document.addEventListener('DOMContentLoaded', function () {
                     const option = document.createElement('option');
                     option.value = course;
                     option.textContent = course;
-
-                    // Add to both dropdowns
-                    courseSelect.appendChild(option);
-                    weeklyPerformanceCourseSelect.appendChild(option.cloneNode(true));
+                    selectElement.appendChild(option);
                 });
 
-                // Update charts when a course is selected
-                courseSelect.addEventListener('change', function () {
-                    updateRequestsHandledByTAChart(this.value);
-                });
-
-                weeklyPerformanceCourseSelect.addEventListener('change', function () {
-                    updateWeeklyPerformanceChart(this.value);
-                });
-
-                // Initialize the charts with the first course
+                // Initialize the chart with the first course
                 if (courses.length > 0) {
-                    updateRequestsHandledByTAChart(courses[0]);
-                    updateWeeklyPerformanceChart(courses[0]);
+                    updateChartCallback(courses[0]);
                 }
             });
     }
 
+    // Initialize charts and course dropdowns
+    fetchCoursesForElement(courseSelect, updateRequestsHandledByTAChart);
+    fetchCoursesForElement(weeklyPerformanceCourseSelect, updateWeeklyPerformanceChart);
+    fetchCoursesForElement(TAPerformanceByTypeCourseSelect, updateTAPerformanceByTypeCourseChart);
+
+    courseSelect.addEventListener('change', function () {
+        updateRequestsHandledByTAChart(this.value);
+    });
+
+    weeklyPerformanceCourseSelect.addEventListener('change', function () {
+        updateWeeklyPerformanceChart(this.value);
+    });
+
+    TAPerformanceByTypeCourseSelect.addEventListener('change', function () {
+        updateTAPerformanceByTypeCourseChart(this.value);
+    });
+
     const weeklyPerformanceChartCtx = document.getElementById('weeklyPerformanceChart').getContext('2d');
-    let weeklyPerformanceChart = new Chart(weeklyPerformanceChartCtx, {
+    weeklyPerformanceChart = new Chart(weeklyPerformanceChartCtx, {
         type: 'bar',
         data: {
             labels: [],
@@ -267,86 +295,165 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    fetchCourses();
-
     function updateRequestsByTAAndTypeChart() {
-    fetch('/api/requests-by-ta-and-type')
-        .then(response => response.json())
-        .then(data => {
-            const taLabels = data.map(item => item.ta);
-            const assistanceCounts = data.map(item => item.assistance);
-            const signOffCounts = data.map(item => item['sign-off']);
+        fetch('/api/requests-by-ta-and-type')
+            .then(response => response.json())
+            .then(data => {
+                const taLabels = data.map(item => item.ta);
+                const assistanceCounts = data.map(item => item.assistance);
+                const signOffCounts = data.map(item => item['sign-off']);
 
-            new Chart(document.getElementById('requestsByTAAndTypeChart').getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: taLabels,
-                    datasets: [
-                        {
-                            label: 'Assistance Requests',
-                            data: assistanceCounts,
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            borderWidth: 1,
-                        },
-                        {
-                            label: 'Sign-Off Requests',
-                            data: signOffCounts,
-                            backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                            borderColor: 'rgba(153, 102, 255, 1)',
-                            borderWidth: 1,
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'TA'
+                new Chart(document.getElementById('requestsByTAAndTypeChart').getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: taLabels,
+                        datasets: [
+                            {
+                                label: 'Assistance Requests',
+                                data: assistanceCounts,
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1,
                             },
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Number of Requests'
+                            {
+                                label: 'Sign-Off Requests',
+                                data: signOffCounts,
+                                backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                                borderColor: 'rgba(153, 102, 255, 1)',
+                                borderWidth: 1,
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'TA'
+                                },
                             },
-                            beginAtZero: true,
-                            ticks: {
-                                stepSize: 1,
-                                callback: function(value) {
-                                    return Number.isInteger(value) ? value : '';
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Number of Requests'
+                                },
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1,
+                                    callback: function(value) {
+                                        return Number.isInteger(value) ? value : '';
+                                    }
                                 }
                             }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'top',
                         },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            label += context.parsed.y;
+                                        }
+                                        return label;
                                     }
-                                    if (context.parsed.y !== null) {
-                                        label += context.parsed.y;
-                                    }
-                                    return label;
                                 }
                             }
                         }
                     }
-                }
+                });
             });
-        });
-}
+    }
 
-updateRequestsByTAAndTypeChart();
+    updateRequestsByTAAndTypeChart();
+
+    function updateTAPerformanceByTypeCourseChart(courseName) {
+        fetch(`/api/requests-handled-by-ta-by-course?course_name=${courseName}`)
+            .then(response => response.json())
+            .then(data => {
+                const taLabels = data.map(item => item.ta);
+                const assistanceCounts = data.map(item => item.assistance);
+                const signOffCounts = data.map(item => item['sign-off']);
+
+                if (TAPerformanceByTypeCourseChart) {
+                    TAPerformanceByTypeCourseChart.destroy();
+                }
+
+                TAPerformanceByTypeCourseChart = new Chart(document.getElementById('TAPerformanceByTypeCourseChart').getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: taLabels,
+                        datasets: [
+                            {
+                                label: 'Assistance Requests',
+                                data: assistanceCounts,
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1,
+                            },
+                            {
+                                label: 'Sign-Off Requests',
+                                data: signOffCounts,
+                                backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                                borderColor: 'rgba(153, 102, 255, 1)',
+                                borderWidth: 1,
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'TA'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Number of Requests'
+                                },
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1,
+                                    callback: function (value) {
+                                        return Number.isInteger(value) ? value : '';
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            label += context.parsed.y;
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+    }
 
     // Average Response Time by TA
     const averageResponseTimeByTAData = @json($averageResponseTimeByTA);
@@ -545,4 +652,5 @@ updateRequestsByTAAndTypeChart();
 
 });
 </script>
+
 @endsection
