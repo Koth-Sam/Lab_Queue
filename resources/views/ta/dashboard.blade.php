@@ -47,7 +47,7 @@
         </div>
 
         <!-- Chart Card: Weekly Performance -->
-        <div class="bg-white p-6 rounded-lg shadow-md flex flex-col h-96 lg:col-span-3">
+        <div class="bg-white p-6 rounded-lg shadow-md flex flex-col h-96">
             <h2 class="text-xl font-semibold mb-4">Weekly Performance</h2>
             <div class="flex-grow flex justify-center items-center">
                 <canvas id="weeklyPerformanceChart" class="w-full h-full"></canvas>
@@ -157,68 +157,67 @@
             // Requests Handled by Request Type Chart
             const requestsHandledByRequestTypeData = @json($requestsHandledByRequestType);
 
-// Extract unique dates and sort them
-const requestTypeLabels = Array.from(new Set(requestsHandledByRequestTypeData.map(data => data.date)))
-    .sort((a, b) => new Date(a) - new Date(b));
+    // Extract unique dates and sort them
+    const requestTypeLabels = Array.from(new Set(requestsHandledByRequestTypeData.map(data => data.date)))
+        .sort((a, b) => new Date(a) - new Date(b));
 
-// Rebuild the data structure to match the unique dates
-const requestTypeData = requestTypeLabels.reduce((acc, date) => {
-    acc[date] = {};
-    return acc;
-}, {});
+    // Rebuild the data structure to match the unique dates
+    const requestTypeData = requestTypeLabels.reduce((acc, date) => {
+        acc[date] = {};
+        return acc;
+    }, {});
 
-requestsHandledByRequestTypeData.forEach(data => {
-    if (!requestTypeData[data.date]) {
-        requestTypeData[data.date] = {};
-    }
-    requestTypeData[data.date][data.request_type] = data.count;
-});
+    requestsHandledByRequestTypeData.forEach(data => {
+        if (!requestTypeData[data.date]) {
+            requestTypeData[data.date] = {};
+        }
+        requestTypeData[data.date][data.request_type] = data.count;
+    });
 
-const uniqueRequestTypes = Array.from(new Set(requestsHandledByRequestTypeData.map(data => data.request_type)));
+    const uniqueRequestTypes = Array.from(new Set(requestsHandledByRequestTypeData.map(data => data.request_type)));
 
-const requestTypeDatasets = uniqueRequestTypes.map(requestType => ({
-    label: requestType,
-    data: requestTypeLabels.map(date => requestTypeData[date]?.[requestType] || 0),
-    backgroundColor: 'rgba(153, 102, 255, 0.2)',
-    borderColor: 'rgba(153, 102, 255, 1)',
-    borderWidth: 1,
-    fill: false
-}));
+    const requestTypeDatasets = uniqueRequestTypes.map(requestType => ({
+        label: requestType,
+        data: requestTypeLabels.map(date => requestTypeData[date]?.[requestType] || 0),
+        backgroundColor: 'rgba(153, 102, 255, 0.2)',
+        borderColor: 'rgba(153, 102, 255, 1)',
+        borderWidth: 1,
+        fill: false
+    }));
 
-createChart(document.getElementById('requestsHandledByRequestTypeChart').getContext('2d'), 'line', {
-    labels: requestTypeLabels,
-    datasets: requestTypeDatasets
-}, {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-        x: {
-            title: {
-                display: true,
-                text: 'Date'
+    createChart(document.getElementById('requestsHandledByRequestTypeChart').getContext('2d'), 'line', {
+        labels: requestTypeLabels,
+        datasets: requestTypeDatasets
+    }, {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: {
+                title: {
+                    display: true,
+                    text: 'Date'
+                },
+                offset: true
             },
-            offset: true
-        },
-        y: {
-            title: {
-                display: true,
-                text: 'Number of Requests'
-            },
-            min: 0,
-            ticks: {
-                beginAtZero: true,
-                stepSize: 1,
-                callback: function(value) {
-                    if (Number.isInteger(value)) {
-                        return value;
+            y: {
+                title: {
+                    display: true,
+                    text: 'Number of Requests'
+                },
+                min: 0,
+                ticks: {
+                    beginAtZero: true,
+                    stepSize: 1,
+                    callback: function(value) {
+                        if (Number.isInteger(value)) {
+                            return value;
+                        }
                     }
                 }
             }
         }
-    }
-});
+    });
 
-    
             // Requests Handled by Status Chart
             const requestsHandledByStatusData = @json($requestsHandledByStatus);
             const handledByStatusLabels = requestsHandledByStatusData.reduce((acc, cur) => {
@@ -298,8 +297,8 @@ createChart(document.getElementById('requestsHandledByRequestTypeChart').getCont
             });
     
             const requestsHandledByCourseData = @json($requestsHandledByCourse);
-        const courseLabels = requestsHandledByCourseData.map(data => data.course_name);
-        const courseCounts = requestsHandledByCourseData.map(data => data.count);
+            const courseLabels = requestsHandledByCourseData.map(data => data.course_name);
+            const courseCounts = requestsHandledByCourseData.map(data => data.count);
 
         new Chart(document.getElementById('requestsHandledByCourseChart'), {
             type: 'bar',

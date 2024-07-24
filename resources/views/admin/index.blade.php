@@ -126,7 +126,7 @@
                             <form action="{{ route('admin.update', $request->id) }}" method="POST">
                                 @csrf
                                 @method('PUT')
-                                <select name="status" disabled="this.form.submit()" {{ $request->status == 'completed' ? 'disabled' : '' }}>
+                                <select name="status" disabled="this.form.submit()" {{ $request->status == 'completed' ? 'disabled' : '' }} class="block py-2 px-4 border rounded focus:outline-none focus:border-blue-500">
                                     <option value="pending" {{ $request->status == 'pending' ? 'selected' : '' }}>Pending</option>
                                     <option value="accepted" {{ $request->status == 'accepted' ? 'selected' : '' }}>Accepted</option>
                                     <option value="completed" {{ $request->status == 'completed' ? 'selected' : '' }}>Completed</option>

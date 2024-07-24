@@ -3,9 +3,11 @@
 @section('content')
 
 <div class="bg-white p-6 rounded-lg shadow-md">
+    
     <div class="flex items-center mb-4">
+        
         <h1 class="text-2xl font-bold mr-2">My Requests</h1>
-        <a href="{{ route('requests.create') }}" class="text-black px-2 py-2 border border-black-800 border-solid p-4 rounded">
+        <a href="{{ route('requests.create') }}" class=" text-black px-2 py-2 border border-black-800 border-solid p-4 rounded ">
             Add Request
         </a>
     </div>
@@ -61,17 +63,12 @@
                         </td>
                         <td class="py-2 px-4 border-b border-gray-200">
                             @if($request->status === 'completed')
-                                <button 
-                                    id="feedback-button-{{ $request->id }}" 
-                                    class="text-black px-2 py-2 p-4 rounded disabled:opacity-50 disabled:cursor-not-allowed" 
-                                    onclick="openFeedbackModal({{ $request->id }})" 
-                                    @if($request->isFeedbackSubmitted()) disabled @endif>
-                                    Rate Your Experience
-                                </button>
+                                <a href="{{ route('requests.view', $request->id) }}" class=" text-black px-2 py-2 p-4 rounded ">Rate Your Experience</a>
                             @else
-                                <span class="text-gray-500"> - </span>
+                                <span class="text-gray-500"></span>
                             @endif
                         </td>
+                        
                     </tr>
                 @endforeach
             </tbody>
@@ -79,98 +76,7 @@
     @endif
 </div>
 
-<!-- Feedback Modal -->
-<div id="feedbackModal" class="fixed z-10 inset-0 overflow-y-auto hidden">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 transition-opacity" aria-hidden="true">
-            <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
-        </div>
-        <!-- Modal content -->
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full">
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div class="sm:flex sm:items-start">
-                    <div class="mt-3 text-center sm:mt-0 sm:text-left">
-                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                            Rate and Comment Your Experience
-                        </h3>
-                        <br>
-                        <div class="mt-2">
-                            <form id="feedbackForm" action="" method="POST">
-                                @csrf
-                                <input type="hidden" name="request_id" id="feedbackRequestId">
-                                <div class="mb-4">
-                                    <label for="rating" class="block text-sm font-medium text-gray-700">Rating</label>
-                                    <select name="rating" id="rating" class="form-select mt-1 block w-full border rounded-md shadow-sm">
-                                        <option value="5">5 - Excellent</option>
-                                        <option value="4">4 - Very Good</option>
-                                        <option value="3">3 - Good</option>
-                                        <option value="2">2 - Fair</option>
-                                        <option value="1">1 - Poor</option>
-                                    </select>
-                                </div>
-                                <div class="mb-4">
-                                    <label for="comments" class="block text-sm font-medium text-gray-700">Comments</label>
-                                    <textarea name="comments" id="comments" rows="4" class="form-textarea mt-1 block w-full border rounded-md shadow-sm"></textarea>
-                                </div>
-                                <div class="flex justify-start">
-                                    <button type="button" onclick="closeFeedbackModal()" class="bg-gray-500 text-white px-4 py-2 rounded-md mr-2">Cancel</button>
-                                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">Submit</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
-    function openFeedbackModal(requestId) 
-    {
-        document.getElementById('feedbackRequestId').value = requestId;
-        document.getElementById('feedbackForm').action = `/requests/${requestId}/feedback`;
-        document.getElementById('feedbackModal').classList.remove('hidden');
-    }
-
-    function closeFeedbackModal() {
-        document.getElementById('feedbackModal').classList.add('hidden');
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('feedbackForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent the default form submission
-
-            var requestId = document.getElementById('feedbackRequestId').value;
-            var feedbackButton = document.getElementById('feedback-button-' + requestId);
-
-            if (feedbackButton) {
-                feedbackButton.disabled = true;
-                feedbackButton.setAttribute('data-submitted', 'true');
-                feedbackButton.classList.add('opacity-50', 'cursor-not-allowed');
-            }
-
-            var formData = new FormData(this);
-
-            fetch(this.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': formData.get('_token') // Add CSRF token
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                closeFeedbackModal();
-                // Optionally handle success message
-                console.log('Feedback submitted successfully');
-            })
-            .catch(error => console.error('Error submitting feedback:', error));
-        });
-    });
-
     document.addEventListener('DOMContentLoaded', function() {
         const getCellValue = (tr, idx) => tr.children[idx].innerText || tr.children[idx].textContent;
 

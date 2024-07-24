@@ -59,6 +59,6 @@
         <p class="p-2 border border-gray-300 rounded">{{ $request->requested_at }}</p>
     </div>
 
-    <a href="{{ route('ta.index') }}" class="bg-black-500 text-black px-4 py-2 rounded hover:bg-blue-600">Back to List</a>
+    <a href="{{ route('ta.index') }}" class="bg-white text-black px-4 py-2 rounded border border-black">Back to List</a>
 </div>
 @endsection

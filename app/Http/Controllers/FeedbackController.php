@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request as HttpRequest;
 use App\Models\Feedback;
-use App\Models\Request;
+use App\Models\Request as UserRequest;
 use Illuminate\Support\Facades\Auth;
 
 class FeedbackController extends Controller
@@ -23,43 +23,45 @@ class FeedbackController extends Controller
     public function create($id)
     {
         //
-        $userRequest = Request::findOrFail($id);
+       /*  $userRequest = Request::findOrFail($id);
 
         // Check if the request is completed and if the current user is the owner
         if ($userRequest->status !== 'completed' || $userRequest->student_id !== Auth::id()) {
             return redirect()->route('requests.index')->with('error', 'Feedback can only be given for completed requests.');
         }
 
-        return view('feedback.create', compact('userRequest'));
+        return view('feedback.create', compact('userRequest')); */
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $HTTPrequest,$id)
+    public function store(HttpRequest $request,$id)
     {
         //
-        $userRequest = Request::findOrFail($id);
+        //$userRequest = Request::findOrFail($id);
+
+        $validatedData = $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'comments' => 'nullable|string',
+        ]);
+
+        $userRequest = UserRequest::findOrFail($id);
 
         if ($userRequest->status !== 'completed' || $userRequest->student_id !== Auth::id()) {
-            return redirect()->route('requests.index')->with('error', 'Feedback can only be given for completed requests.');
+            return response()->json(['success' => false, 'message' => 'Feedback can only be given for completed requests.'], 403);
         }
 
-        $validatedData = $HTTPrequest->validate([
-            'rating' => 'required|integer|min:1|max:5',
-            'comments' => 'nullable|string|max:1000',
-        ]);
-
         Feedback::create([
-            'request_id' => $userRequest->id,
-            'student_id' => Auth::id(),
+            'request_id' => $id,
+            'student_id' => auth()->id(),
             'rating' => $validatedData['rating'],
-            'comments' => $validatedData['comments'],
+            'comments' => $validatedData['comments'] ?? null,
         ]);
 
-        return redirect()->route('requests.index')->with('success', 'Feedback submitted successfully.');
-    
+        return response()->json(['success' => true, 'message' => 'Feedback submitted successfully.']);
     }
+    
 
     /**
      * Display the specified resource.
@@ -80,7 +82,7 @@ class FeedbackController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UserRequest $request, string $id)
     {
         //
     }

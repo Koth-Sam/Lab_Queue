@@ -59,7 +59,7 @@
             <input type="url" id="code_url" name="code_url" class="w-full p-2 border border-gray-300 rounded mt-1">
         </div>
 
-        <button type="submit" class="bg-white text-black px-4 py-2 rounded border border-black hover:bg-black hover:text-white">
+        <button type="submit" class="bg-white text-black px-4 py-2 rounded border border-black ">
             Submit</button>
     </form>
 

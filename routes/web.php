@@ -30,8 +30,11 @@ Route::middleware(['auth', 'role:student'])->group(function () {
     Route::get('/requests', [RequestController::class, 'index'])->name('requests.index');
     Route::get('/requests/{id}', [RequestController::class, 'show'])->name('requests.show');
     Route::get('/home', [RequestController::class, 'studentHome'])->name('student.home');
-    Route::get('/requests/{id}/feedback', [FeedbackController::class, 'create'])->name('feedback.create');
+    
     Route::post('/requests/{id}/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
+    
+   // Route::post('/requests/{id}/feedback', [FeedbackController::class, 'store']);
+
 
 });
 
