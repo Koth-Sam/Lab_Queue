@@ -101,7 +101,7 @@ class TAController extends Controller
         
         $userRequest->save();
 
-        return redirect()->route('ta.index')->with('success', 'Request status updated successfully.');
+        return redirect()->route('ta.index')->with('success');
     }
 
 

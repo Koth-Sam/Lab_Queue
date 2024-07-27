@@ -35,7 +35,6 @@ Route::middleware(['auth', 'role:student'])->group(function () {
     
    // Route::post('/requests/{id}/feedback', [FeedbackController::class, 'store']);
 
-
 });
 
 
@@ -61,7 +60,13 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/api/requests-handled-by-ta', [AdminController::class, 'getRequestsHandledByTA'])->name('api.requests-handled-by-ta');
     Route::get('/api/get-weekly-performance', [AdminController::class, 'getWeeklyPerformance']);
     Route::get('/api/requests-by-ta-and-type', [AdminController::class, 'getRequestsByTAAndType'])->name('api.requests-by-ta-and-type');
-    Route::get('/api/requests-handled-by-ta-by-course', [AdminController::class, 'getRequestsHandledByTAByCourse'])->name('api.requests-by-ta-and-type');;
+    Route::get('/api/requests-handled-by-ta-by-course', [AdminController::class, 'getRequestsHandledByTAByCourse'])->name('api.requests-by-ta-and-type');
+    Route::get('/api/requests-by-subject-area', [AdminController::class, 'getRequestsBySubjectArea'])->name('api.requests-by-subject-area');
+
+    //Route::get('/admin/dashboard/export/pdf', [AdminController::class, 'exportToPDF'])->name('admin.dashboard.export.pdf');
+    Route::get('/admin/export-pdf', [AdminController::class, 'exportToPDF'])->name('admin.dashboard.export.pdf');
+    Route::get('/admin/dashboard/export/word', [AdminController::class, 'exportToWord'])->name('admin.dashboard.export.word');
+    
     
 
 });

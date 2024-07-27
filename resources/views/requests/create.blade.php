@@ -65,4 +65,20 @@
 
 
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const successMessage = document.getElementById('successMessage');
+        if (successMessage) {
+            setTimeout(() => {
+                successMessage.style.transition = 'opacity 0.5s';
+                successMessage.style.opacity = 0;
+                setTimeout(() => {
+                    successMessage.remove();
+                }, 500); // Allow time for the fade-out transition before removing from DOM
+            }, 5000); // Display message for 5 seconds
+        }
+    });
+</script>
+
 @endsection

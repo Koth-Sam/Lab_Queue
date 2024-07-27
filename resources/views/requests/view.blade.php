@@ -217,6 +217,16 @@
                 }
             }
         })));
+
+        document.addEventListener('DOMContentLoaded', function () {
+        setTimeout(function() {
+            const successMessage = document.getElementById('successMessage');
+            if (successMessage) {
+                successMessage.style.display = 'none';
+            }
+        }, 5000);
+    
     });
+
 </script>
 @endsection

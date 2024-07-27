@@ -2,8 +2,13 @@
 @section('title', 'Admin Dashboard')
 @section('content')
 <div class="container mx-auto p-6">
-    <h1 class="text-2xl font-bold mb-4">Admin Dashboard</h1>
-
+    <div class="flex items-center justify-between mb-4">
+        <h1 class="text-2xl font-bold">Admin Dashboard</h1>
+        <div class="flex space-x-2">
+            <a href="{{ route('admin.dashboard.export.pdf') }}" class="bg-blue-500 text-white px-4 py-2 rounded">Export to PDF</a>
+            <a href="{{ route('admin.dashboard.export.word') }}" class="bg-blue-500 text-white px-4 py-2 rounded">Export to Word</a>
+        </div>
+    </div>
     <!-- Summary Cards -->
     <div class="border border-black-400-bold rounded-lg p-6 mb-4">
         <h1 class="text-2xl font-bold mb-4">Summary</h1>
@@ -123,6 +128,23 @@
                 <canvas id="requestsTrendByTypeChart" class="w-full h-full"></canvas>
             </div>
         </div>
+
+        <div class="bg-white p-4 rounded-lg shadow-md">
+            <h2 class="text-lg font-bold mb-2">Requests by Subject Area</h2>
+
+            <!-- Dropdown for Course Selection -->
+            <div class="mb-4">
+                <label for="subjectAreaCourseSelect" class="block text-md font-medium mb-2">Course</label>
+                <select id="subjectAreaCourseSelect" class="form-select block w-full p-2 border rounded" style="width: 320px; height: 38px;">
+                    <!-- Options will be populated dynamically -->
+                </select>
+            </div>
+
+            <div class="flex-grow flex justify-center items-center">
+                <canvas id="requestsBySubjectAreaChart" class="w-full h-full"></canvas>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -132,10 +154,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const courseSelect = document.getElementById('courseSelect');
     const weeklyPerformanceCourseSelect = document.getElementById('weeklyPerformanceCourseSelect');
     const TAPerformanceByTypeCourseSelect = document.getElementById('TAPerformanceByTypeCourseSelect');
+    const subjectAreaCourseSelect = document.getElementById('subjectAreaCourseSelect');
 
     let requestsHandledByTAChartInstance;
     let weeklyPerformanceChart;
     let TAPerformanceByTypeCourseChart;
+    let requestsBySubjectAreaChart;
 
     function updateRequestsHandledByTAChart(courseName) {
         fetch(`/api/requests-handled-by-ta?course_name=${courseName}`)
@@ -245,6 +269,7 @@ document.addEventListener('DOMContentLoaded', function () {
     fetchCoursesForElement(courseSelect, updateRequestsHandledByTAChart);
     fetchCoursesForElement(weeklyPerformanceCourseSelect, updateWeeklyPerformanceChart);
     fetchCoursesForElement(TAPerformanceByTypeCourseSelect, updateTAPerformanceByTypeCourseChart);
+    fetchCoursesForElement(subjectAreaCourseSelect, updateRequestsBySubjectAreaChart);
 
     courseSelect.addEventListener('change', function () {
         updateRequestsHandledByTAChart(this.value);
@@ -256,6 +281,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     TAPerformanceByTypeCourseSelect.addEventListener('change', function () {
         updateTAPerformanceByTypeCourseChart(this.value);
+    });
+
+    subjectAreaCourseSelect.addEventListener('change', function () {
+        updateRequestsBySubjectAreaChart(this.value);
     });
 
     const weeklyPerformanceChartCtx = document.getElementById('weeklyPerformanceChart').getContext('2d');
@@ -650,7 +679,100 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    function updateRequestsBySubjectAreaChart(courseName) {
+        fetch(`/api/requests-by-subject-area?course_name=${courseName}`)
+            .then(response => response.json())
+            .then(data => {
+                const subjectLabels = data.map(item => item.subject_area || 'Unknown');
+                const requestCounts = data.map(item => item.count);
+
+                if (requestsBySubjectAreaChart) {
+                    requestsBySubjectAreaChart.data.labels = subjectLabels;
+                    requestsBySubjectAreaChart.data.datasets[0].data = requestCounts;
+                    requestsBySubjectAreaChart.update();
+                } else {
+                    requestsBySubjectAreaChart = new Chart(document.getElementById('requestsBySubjectAreaChart').getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: subjectLabels,
+                            datasets: [{
+                                label: 'Requests by Subject Area',
+                                data: requestCounts,
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)', 
+                                    'rgba(54, 162, 235, 0.2)', 
+                                    'rgba(255, 206, 86, 0.2)', 
+                                    'rgba(75, 192, 192, 0.2)', 
+                                    'rgba(153, 102, 255, 0.2)'
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)', 
+                                    'rgba(54, 162, 235, 1)', 
+                                    'rgba(255, 206, 86, 1)', 
+                                    'rgba(75, 192, 192, 1)', 
+                                    'rgba(153, 102, 255, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Subject Area'
+                                    },
+                                },
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: 'Number of Requests'
+                                    },
+                                    min: 0,
+                                    ticks: {
+                                        beginAtZero: true,
+                                        stepSize: 1,
+                                        callback: function(value) {
+                                            return Number.isInteger(value) ? value : '';
+                                        }
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            let label = context.label || '';
+                                            if (label) {
+                                                label += ': ';
+                                            }
+                                            if (context.raw !== null) {
+                                                label += context.raw;
+                                            }
+                                            return label;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+    }
+
+    fetchCoursesForElement( updateRequestsBySubjectAreaChart);
+
+    subjectAreaCourseSelect.addEventListener('change', function () {
+        updateRequestsBySubjectAreaChart(this.value);
+    });
+
 });
 </script>
+
 
 @endsection
