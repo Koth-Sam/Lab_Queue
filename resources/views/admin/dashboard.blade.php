@@ -145,10 +145,18 @@
             </div>
         </div>
 
+        <div class="bg-white p-4 rounded-lg shadow-md">
+            <h2 class="text-lg font-bold mb-2">Ratings by TA</h2>
+            <div class="flex-grow flex justify-center items-center">
+                <canvas id="ratingsByTAChart" class="w-full h-full"></canvas>
+            </div>
+        </div>
+
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const courseSelect = document.getElementById('courseSelect');
@@ -718,6 +726,12 @@ document.addEventListener('DOMContentLoaded', function () {
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
+                            layout: {
+            padding: {
+                left: 50,   // Add padding on the left
+                right: 50   // Add padding on the right
+            }
+        },
                             scales: {
                                 x: {
                                     title: {
@@ -770,6 +784,95 @@ document.addEventListener('DOMContentLoaded', function () {
     subjectAreaCourseSelect.addEventListener('change', function () {
         updateRequestsBySubjectAreaChart(this.value);
     });
+
+    const ratingsByTAData = @json($ratingsByTA); // Assume this variable is passed to your view
+
+const ctx = document.getElementById('ratingsByTAChart').getContext('2d');
+const labels = ratingsByTAData.map(data => data.ta);
+
+// Calculate the total ratings per TA for percentages
+const totalRatingsPerTA = ratingsByTAData.map(data => {
+    return Object.values(data.ratings).reduce((sum, count) => sum + count, 0);
+});
+
+const colors = {
+    5: { background: 'rgba(0, 128, 0, 0.5)', border: 'rgba(0, 128, 0, 1)' }, // Green
+    4: { background: 'rgba(144, 238, 144, 0.5)', border: 'rgba(144, 238, 144, 1)' }, // Light Green
+    3: { background: 'rgba(255, 204, 0, 0.5)', border: 'rgba(255, 204, 0, 1)' }, // Dark Yellow
+    2: { background: 'rgba(255, 165, 0, 0.5)', border: 'rgba(255, 165, 0, 1)' }, // Orange
+    1: { background: 'rgba(255, 0, 0, 0.5)', border: 'rgba(255, 0, 0, 1)' }, // Red
+};
+
+// Create datasets for ratings 1 to 5 with fixed colors
+const datasets = [5, 4, 3, 2, 1].map(rating => {
+    return {
+        label: `Rating ${rating}`,
+        data: ratingsByTAData.map(data => data.ratings[rating] || 0), // Default to 0 if no ratings
+        backgroundColor: colors[rating].background,
+        borderColor: colors[rating].border,
+        borderWidth: 1,
+    };
+});
+
+const ratingsByTAChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: datasets
+    },
+    options: {
+        indexAxis: 'y', // Set the chart to horizontal
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: {
+                stacked: true,
+                title: {
+                    display: true,
+                    text: 'Number of Ratings'
+                },
+                ticks: {
+                    beginAtZero: true,
+                    callback: function(value) {
+                        return Number.isInteger(value) ? value : ''; 
+                    }
+                }
+            },
+            y: {
+                stacked: true,
+                title: {
+                    display: true,
+                    text: 'TA'
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+            datalabels: {
+                anchor: 'center',
+                align: 'center',
+                formatter: (value, context) => {
+                    if (value === 0) {
+                        return null; // Skip labels with 0 value
+                    }
+                    const index = context.dataIndex;
+                    const total = totalRatingsPerTA[index];
+                    const percentage = total ? ((value / total) * 100).toFixed(2) : 0;
+                    return `${value} (${percentage}%)`;
+                },
+                color: 'black',
+                font: {
+                    weight: 'bold',
+                    size: 12
+                }
+            }
+        }
+    },
+    plugins: [ChartDataLabels] // Add the plugin to the chart
+});
+
 
 });
 </script>

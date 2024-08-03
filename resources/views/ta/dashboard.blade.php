@@ -154,9 +154,9 @@
                 aspectRatio: 1.5,
             });
     
-            // Requests Handled by Request Type Chart
-            const requestsHandledByRequestTypeData = @json($requestsHandledByRequestType);
-
+     // Requests Handled by Request Type Chart
+     const requestsHandledByRequestTypeData = @json($requestsHandledByRequestType);
+       
     // Extract unique dates and sort them
     const requestTypeLabels = Array.from(new Set(requestsHandledByRequestTypeData.map(data => data.date)))
         .sort((a, b) => new Date(a) - new Date(b));

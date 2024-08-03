@@ -218,6 +218,8 @@ class AdminController extends Controller
         ->orderBy('subject_area', 'asc')
         ->get();
 
+        $ratingsByTA = $this->getRatingsByTA();
+
         return view('admin.dashboard', compact(
             'requestsSummary',
             'requestsHandledByTA',
@@ -229,7 +231,8 @@ class AdminController extends Controller
             'requestsTrendByType',
             'requestsByTAAndType',
             'requestsByCourseByTAByType',
-            'requestsBySubjectArea'
+            'requestsBySubjectArea',
+            'ratingsByTA'
         ));
     }
 
@@ -334,8 +337,8 @@ class AdminController extends Controller
     return response()->json($requestsHandledByTA);
  }
 
- public function getRequestsBySubjectArea(Request $request)
- {
+    public function getRequestsBySubjectArea(Request $request)
+    {
      $courseName = $request->query('course_name');
  
      // Fetch requests grouped by subject_area for the given course
@@ -354,7 +357,37 @@ class AdminController extends Controller
          });
  
      return response()->json($requestsBySubjectArea);
- } 
+
+    } 
+
+    public function getRatingsByTA()
+{
+    // Assuming there is a relationship between UserRequest and Feedback
+    $ratingsByTA = UserRequest::join('feedback', 'requests.id', '=', 'feedback.request_id') // Adjust the foreign key if needed
+        ->whereNotNull('feedback.rating') // Ensure only requests with ratings are considered
+        ->where('requests.status', 'completed') // Only completed requests
+        ->select('requests.ta_id', 'feedback.rating', DB::raw('count(*) as count'))
+        ->groupBy('requests.ta_id', 'feedback.rating')
+        ->with('ta:id,name') // Ensure `ta` relationship is eager loaded
+        ->get()
+        ->groupBy('ta_id')
+        ->map(function ($ratings, $taId) {
+            $taName = $ratings->first()->ta->name ?? 'Unknown'; // Handle TA name
+            $ratingCounts = [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0]; // Initialize rating counts
+
+            foreach ($ratings as $rating) {
+                $ratingCounts[$rating->rating] = $rating->count; // Populate counts for each rating
+            }
+
+            return [
+                'ta' => $taName,
+                'ratings' => $ratingCounts,
+            ];
+        })
+        ->values();
+
+    return $ratingsByTA;
+}
 
 
  public function exportToPDF()

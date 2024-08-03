@@ -116,11 +116,32 @@ class TAController extends Controller
             ->orderBy('date', 'asc')
             ->get();
     
-        $requestsByStatus = UserRequest::selectRaw('status, count(*) as count')
+        $requestsByStatus = UserRequest::where('ta_id', $taId)
+            ->selectRaw("
+                CASE 
+                    WHEN status = 'completed' THEN 'Completed'
+                    WHEN status = 'accepted' THEN 'Accepted'
+                END as status,
+                count(*) as count
+            ")
+            ->whereIn('status', ['accepted', 'completed'])
             ->groupBy('status')
-            ->where('ta_id', $taId)
             ->get();
-        
+    
+        // Ensure "Accepted" count includes "Completed" and show both even if "Accepted" is zero
+        $completedCount = $requestsByStatus->where('status', 'Completed')->first()->count ?? 0;
+        $acceptedCount = $requestsByStatus->where('status', 'Accepted')->first()->count ?? 0;
+    
+        if ($acceptedCount > 0 || $completedCount > 0) {
+            $acceptedCount += $completedCount;
+        }
+    
+        // Ensure both statuses are represented in the output
+        $requestsByStatus = collect([
+            ['status' => 'Accepted', 'count' => $acceptedCount],
+            ['status' => 'Completed', 'count' => $completedCount],
+        ]);
+    
         $requestsHandledByRequestType = UserRequest::where('ta_id', $taId)
             ->selectRaw('DATE(requested_at) as date, request_type, count(*) as count')
             ->groupBy('date', 'request_type')
