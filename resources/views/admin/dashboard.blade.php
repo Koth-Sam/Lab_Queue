@@ -139,7 +139,6 @@
                     <!-- Options will be populated dynamically -->
                 </select>
             </div>
-
             <div class="flex-grow flex justify-center items-center">
                 <canvas id="requestsBySubjectAreaChart" class="w-full h-full"></canvas>
             </div>
@@ -829,7 +828,7 @@ const ratingsByTAChart = new Chart(ctx, {
                 stacked: true,
                 title: {
                     display: true,
-                    text: 'Number of Ratings'
+                    text: 'Number of Requests'
                 },
                 ticks: {
                     beginAtZero: true,

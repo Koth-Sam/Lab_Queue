@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Console\Scheduling\Schedule;
 
 use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Http\MiddlewarePriority;
@@ -25,4 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
     ->withExceptions(function (Exceptions $exceptions) {
         //
-    })->create();
+    })
+    
+    
+    ->create();
