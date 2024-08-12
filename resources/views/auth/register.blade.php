@@ -42,7 +42,7 @@
         <!-- Role -->
         <div class="mt-4">
             <x-input-label for="role" :value="__('Role')" />
-            <select id="role" name="role" class="block mt-1 w-full">
+            <select id="role" name="role" class="block mt-1 w-full rounded-md ">
                 <option value="student">Student</option>
                 <option value="ta">TA</option>
                 <option value="admin">Admin</option>

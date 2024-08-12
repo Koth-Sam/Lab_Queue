@@ -71,7 +71,7 @@ class AdminController extends Controller
         if (! $uniqueTANames->contains('N/A')) {
             $uniqueTANames->push('N/A');
         }
-
+        
         return view('admin.index', compact('requests', 'uniqueCourses', 'uniqueCourseCodes', 'uniqueRequestTypes', 'uniqueStatuses', 'uniqueTANames'));
 
     }
@@ -116,11 +116,7 @@ class AdminController extends Controller
         return redirect()->route('admin.index');
     }
 
-    public function destroy(string $id)
-    {
-        //
-    }
-
+    
     public function dashboard()
     {
         $requestsSummary = UserRequest::selectRaw('

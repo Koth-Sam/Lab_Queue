@@ -30,13 +30,9 @@ Route::middleware(['auth', 'role:student'])->group(function () {
     Route::get('/requests', [RequestController::class, 'index'])->name('requests.index');
     Route::get('/requests/{id}', [RequestController::class, 'show'])->name('requests.show');
     Route::get('/home', [RequestController::class, 'studentHome'])->name('student.home');
-    
-    Route::post('/requests/{id}/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
-    
-   // Route::post('/requests/{id}/feedback', [FeedbackController::class, 'store']);
+    Route::post('/requests/{id}/feedback', [FeedbackController::class, 'store'])->name('feedback.store');  
 
 });
-
 
     // TA routes
 Route::middleware(['auth', 'role:ta'])->group(function () {
@@ -47,10 +43,9 @@ Route::middleware(['auth', 'role:ta'])->group(function () {
     Route::get('/ta/dashboard', [TAController::class, 'dashboard'])->name('ta.dashboard'); 
 });
 
-
 //Admin routes
 Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/admin/requests', [AdminController::class, 'index'])->name('admin.index');
+   Route::get('/admin/requests', [AdminController::class, 'index'])->name('admin.index');
     Route::get('/admin/requests/{id}', [AdminController::class, 'show'])->name('admin.show');
     Route::put('/admin/requests/{id}', [AdminController::class, 'update'])->name('admin.update');
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
@@ -66,7 +61,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     //Route::get('/admin/dashboard/export/pdf', [AdminController::class, 'exportToPDF'])->name('admin.dashboard.export.pdf');
     Route::get('/admin/export-pdf', [AdminController::class, 'exportToPDF'])->name('admin.dashboard.export.pdf');
     Route::get('/admin/dashboard/export/word', [AdminController::class, 'exportToWord'])->name('admin.dashboard.export.word');
-    
     
 
 });

@@ -5,8 +5,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-       <!-- <title>{{ config('app.name', 'Laravel') }}</title> -->
-        <title> Lab Support Request System- @yield('title') </title>
+        <!-- <title>{{ config('app.name', 'Laravel') }}</title> -->
+        <title>Lab Support Request System - @yield('title')</title>
+        @livewireStyles
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -14,43 +15,40 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-        @vite('resources/js/app.js')
         
-       <!--  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> -->
+        <!-- Font Awesome -->
         @if(app()->environment('web'))
         {{-- Only load Font Awesome for web rendering --}}
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         @endif
         
-        
         <!-- Tailwind CSS -->
         <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 
-        <!-- Alpine.js -->
-        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.12.0/dist/cdn.min.js" defer></script>
+        <!-- Alpine.js
+        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.12.0/dist/cdn.min.js" defer></script>  -->
 
-        
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
             @include('layouts.navigation')
 
             @if($errors->any())
-
                 <div>
-                Errors:
-                <ul>
-                    @foreach($errors->all() as $error)
-                        <li>{{$error}}</li>
-                    @endforeach
-                </ul>
+                    Errors:
+                    <ul>
+                        @foreach($errors->all() as $error)
+                            <li>{{$error}}</li>
+                        @endforeach
+                    </ul>
                 </div>
             @endif
 
             <main>
-     
                @yield('content')
             </main>
         </div>
+
+        @livewireScripts
     </body>
 </html>
