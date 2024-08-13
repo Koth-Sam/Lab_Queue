@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -26,8 +25,14 @@
         </ul>
     @endif
 
-    <h2>Request Status Chart</h2>
-    <img src="{{ $chartUrl }}" alt="Requests Chart">
+        <h2>Request Status Chart</h2>
+        <img src="{{ $chartUrl }}" alt="Requests Chart">
+
+        <h2>Weekly Performance of TAs</h2>
+        <img src="{{ $weeklyPerformanceChartUrl }}" alt="Weekly Performance Chart">
+
+        <h2>Requests Handled by TA by Request Type</h2>
+        <img src="{{ $requestsByTAChartUrl }}" alt="Requests by TA Chart">
 
 </body>
 </html>
