@@ -23,8 +23,13 @@ class WeeklyDashboardReport extends Mailable
      public $weeklyPerformanceChartUrl;
      public $requestsByTAChartUrl;
      public $courseName;
+     public $signOffRequests;
+     public $assistanceRequests;
+     public $weekStartDate;
+     public $weekEndDate;
 
-    public function __construct($requestsSummary, $feedbackComments, $chartUrl, $weeklyPerformanceChartUrl, $requestsByTAChartUrl, $courseName)
+    public function __construct($requestsSummary, $feedbackComments, $chartUrl, $weeklyPerformanceChartUrl, $requestsByTAChartUrl, $courseName,$signOffRequests,
+    $assistanceRequests,$weekStartDate, $weekEndDate)
     {
         //
         $this->requestsSummary = $requestsSummary;
@@ -33,20 +38,28 @@ class WeeklyDashboardReport extends Mailable
         $this->weeklyPerformanceChartUrl = $weeklyPerformanceChartUrl;
         $this->requestsByTAChartUrl = $requestsByTAChartUrl;
         $this->courseName = $courseName;
+        $this->signOffRequests = $signOffRequests;
+        $this->assistanceRequests = $assistanceRequests;
+        $this->weekStartDate = $weekStartDate;
+        $this->weekEndDate = $weekEndDate;
 
     }
 
     public function build()
     {
         return $this->view('emails.weekly_dashboard_report')
-                ->subject("Weekly Report for {$this->courseName}")
-                ->with([
-                    'requestsSummary' => $this->requestsSummary,
-                    'feedbackComments' => $this->feedbackComments,
-                    'chartUrl' => $this->chartUrl,
-                    'weeklyPerformanceChartUrl' => $this->weeklyPerformanceChartUrl,
-                    'requestsByTAChartUrl' => $this->requestsByTAChartUrl,
-                    'courseName' => $this->courseName,
+            ->subject("Weekly Report for {$this->courseName} From {$this->weekStartDate} To {$this->weekEndDate}")
+            ->with([
+                'requestsSummary' => $this->requestsSummary,
+                'feedbackComments' => $this->feedbackComments,
+                'chartUrl' => $this->chartUrl,
+                'weeklyPerformanceChartUrl' => $this->weeklyPerformanceChartUrl,
+                'requestsByTAChartUrl' => $this->requestsByTAChartUrl,
+                'courseName' => $this->courseName,
+                'signOffRequests' => $this->signOffRequests,
+                'assistanceRequests' => $this->assistanceRequests,
+                'weekStartDate' => $this->weekStartDate,
+                'weekEndDate' => $this->weekEndDate,
                 ]);
     }
 

@@ -4,7 +4,7 @@
 <div class="container mx-auto p-6">
     <h1 class="text-2xl font-bold mb-4">Submit Feedback for Request #{{ $userRequest->id }}</h1>
 
-    <form action="{{ route('feedback.store', $userRequest->id) }}" method="POST">
+    <form action="{{ route('feedback.store', $userRequest->id) }}" method="POST" autocomplete="off">
         @csrf
 
         <div class="mb-4">
@@ -26,4 +26,8 @@
         <button type="submit" class="bg-blue-500 text-white p-2 rounded">Submit Feedback</button>
     </form>
 </div>
+
+
+</script>
+
 @endsection

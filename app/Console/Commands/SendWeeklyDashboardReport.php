@@ -27,6 +27,10 @@ class SendWeeklyDashboardReport extends Command
 
     foreach ($lecturerCourses as $email => $courses) {
         foreach ($courses as $courseName) {
+
+            $weekStartDate = Carbon::now()->startOfWeek()->format('Y-m-d');
+            $weekEndDate = Carbon::now()->endOfWeek()->format('Y-m-d');
+
             $requestsSummary = UserRequest::where('course_name', $courseName)
                 ->selectRaw('
                     COUNT(*) as total_requests,
@@ -35,6 +39,16 @@ class SendWeeklyDashboardReport extends Command
                     SUM(CASE WHEN status = "completed" THEN 1 ELSE 0 END) as completed_requests
                 ')
                 ->first();
+
+            $signOffRequests = UserRequest::where('course_name', $courseName)
+                ->where('request_type', 'sign-off')
+                ->where('created_at', '>=', Carbon::now()->subWeek())
+                ->count();
+
+            $assistanceRequests = UserRequest::where('course_name', $courseName)
+                ->where('request_type', 'assistance')
+                ->where('created_at', '>=', Carbon::now()->subWeek())
+                ->count();
 
             $feedbackComments = Feedback::whereHas('request', function ($query) use ($courseName) {
                 $query->where('course_name', $courseName);
@@ -150,77 +164,86 @@ class SendWeeklyDashboardReport extends Command
 
             $weeklyPerformanceChartUrl = $weeklyPerformanceChart->getUrl();
 
-            // Requests Handled by TA by Request Type by Course Chart
-            $requestsByTAChart = new QuickChart();
+         // Requests Handled by TA by Request Type by Course Chart
+$requestsByTAChart = new QuickChart();
 
-            $requestsByTAData = UserRequest::where('course_name', $courseName)
-                ->whereIn('status', ['accepted', 'completed'])
-                ->selectRaw('ta_id, request_type, COUNT(*) as count')
-                ->groupBy('ta_id', 'request_type')
-                ->get();
+// Join the user table to get TA names
+$requestsByTAData = UserRequest::where('course_name', $courseName)
+    ->whereIn('status', ['accepted', 'completed'])
+    ->join('users', 'users.id', '=', 'requests.ta_id')
+    ->selectRaw('users.name as ta_name, request_type, COUNT(*) as count')
+    ->groupBy('ta_name', 'request_type')
+    ->get();
 
-            $tas = $requestsByTAData->pluck('ta_id')->unique()->toArray();
-            $requestTypes = ['assistance', 'sign-off'];
+    $tas = $requestsByTAData->pluck('ta_name')->unique()->toArray();
+$requestTypes = ['assistance', 'sign-off'];
 
-            $datasets = [];
-            foreach ($requestTypes as $type) {
-                $data = [];
-                foreach ($tas as $ta) {
-                    $count = $requestsByTAData->where('ta_id', $ta)->where('request_type', $type)->sum('count');
-                    $data[] = $count;
-                }
-                $datasets[] = [
-                    'label' => ucfirst($type),
-                    'data' => $data,
-                ];
-            }
+$datasets = [];
+foreach ($requestTypes as $type) {
+    $data = [];
+    foreach ($tas as $ta) {
+        $count = $requestsByTAData->where('ta_name', $ta)->where('request_type', $type)->sum('count');
+        $data[] = $count;
+    }
+    $datasets[] = [
+        'label' => ucfirst($type),
+        'data' => $data,
+        'backgroundColor' => $type === 'assistance' ? 'rgba(75, 192, 192, 0.6)' : 'rgba(255, 99, 132, 0.6)',
+    ];
+}
 
-            $requestsByTAChartConfig = [
-                'type' => 'bar',
-                'data' => [
-                    'labels' => $tas,
-                    'datasets' => $datasets,
+$requestsByTAChartConfig = [
+    'type' => 'bar',
+    'data' => [
+        'labels' => $tas,  // Use TA names for x-axis labels
+        'datasets' => $datasets,
+        
+    ],
+    'options' => [
+        'scales' => [
+            'x' => [
+                'title' => [
+                    'display' => true,
+                    'text' => 'Teaching Assistants',
                 ],
-                'options' => [
-                    'scales' => [
-                        'x' => [
-                            'title' => [
-                                'display' => true,
-                                'text' => 'Teaching Assistants',
-                            ],
-                        ],
-                        'y' => [
-                            'title' => [
-                                'display' => true,
-                                'text' => 'Number of Requests',
-                            ],
-                            'ticks' => [
-                                'beginAtZero' => true,
-                                'stepSize' => 1,
-                                'precision' => 0,
-                            ],
-                        ],
-                    ],
+            ],
+            'y' => [
+                'title' => [
+                    'display' => true,
+                    'text' => 'Number of Requests',
                 ],
-            ];
+                'ticks' => [
+                    'beginAtZero' => true,
+                    'stepSize' => 1,
+                    'precision' => 0,
+                ],
+            ],
+        ],
+    ],
+];
 
-            $requestsByTAChart->setConfig(json_encode($requestsByTAChartConfig));
-            $requestsByTAChart->setVersion('4');  // Ensure the use of Chart.js v4
-            $requestsByTAChart->setDevicePixelRatio(2);  // High-quality rendering
-            $requestsByTAChart->setWidth(300);  // Set the chart width to 400px
-            $requestsByTAChart->setHeight(200); 
+$requestsByTAChart->setConfig(json_encode($requestsByTAChartConfig));
+$requestsByTAChart->setVersion('4');  // Ensure the use of Chart.js v4
+$requestsByTAChart->setDevicePixelRatio(2);  // High-quality rendering
+$requestsByTAChart->setWidth(300);  // Set the chart width to 400px
+$requestsByTAChart->setHeight(200);
 
-            $requestsByTAChartUrl = $requestsByTAChart->getUrl();
+$requestsByTAChartUrl = $requestsByTAChart->getUrl();
 
-            // Send the email with all charts
-            Mail::to($email)->send(new WeeklyDashboardReport(
-                $requestsSummary, 
-                $feedbackComments, 
-                $chartUrl, 
-                $weeklyPerformanceChartUrl,
-                $requestsByTAChartUrl,
-                $courseName
-            ));
+// Send the email with all charts
+Mail::to($email)->send(new WeeklyDashboardReport(
+    $requestsSummary, 
+    $feedbackComments, 
+    $chartUrl, 
+    $weeklyPerformanceChartUrl,
+    $requestsByTAChartUrl,
+    $courseName,
+    $signOffRequests,
+    $assistanceRequests,
+    $weekStartDate,
+    $weekEndDate
+));
+
         }
     }
 }
