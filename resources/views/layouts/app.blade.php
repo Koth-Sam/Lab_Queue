@@ -6,7 +6,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <!-- <title>{{ config('app.name', 'Laravel') }}</title> -->
-        <title>Lab Support Request System - @yield('title')</title>
+        <title>Lab Assistance and Sign-off Requests System- @yield('title')</title>
         @livewireStyles
 
         <!-- Fonts -->

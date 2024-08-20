@@ -244,10 +244,12 @@ class AdminController extends Controller
 
         $requestsHandledByTA = UserRequest::where('course_name', $courseName)
             ->select('ta_id', DB::raw('count(*) as count'))
+            ->whereNotNull('ta_id') 
             ->groupBy('ta_id')
             ->with('ta')
             ->get()
             ->map(function ($request) {
+                $taName = $request->first()->ta->name;  
                 return [
                     'ta' => $request->ta ? $request->ta->name : 'N/A',
                     'count' => $request->count,
@@ -263,20 +265,23 @@ class AdminController extends Controller
     
         $weeklyPerformanceByCourse = UserRequest::selectRaw('YEARWEEK(requested_at, 3) as week, ta_id, count(*) as count')
             ->where('course_name', $courseName)
+            ->whereIn('status', ['accepted', 'completed'])  // Include only accepted or completed requests
+            ->whereNotNull('ta_id')  // Exclude requests with no assigned TA
             ->groupBy('week', 'ta_id')
             ->orderBy('week', 'asc')
-            ->with('ta')
+            ->with('ta:id,name')
             ->get()
             ->map(function ($item) {
                 return [
                     'week' => $item->week,
-                    'ta' => $item->ta ? $item->ta->name : 'N/A',
+                    'ta' => $item->ta->name,  // No need for 'N/A' fallback as we're excluding null TAs
                     'count' => $item->count
                 ];
             });
     
         return response()->json($weeklyPerformanceByCourse);
     }
+    
 
 
     public function getRequestsByTAAndType()
@@ -310,15 +315,16 @@ class AdminController extends Controller
         return response()->json([]);
     }
 
-    // Fetch the data grouped by TA and request type
-    $requestsHandledByTA = UserRequest::where('course_name', $courseName)
+        $requestsHandledByTA = UserRequest::where('course_name', $courseName)
+        ->whereIn('status', ['accepted', 'completed'])  // Include only accepted or completed requests
+        ->whereNotNull('ta_id')  // Exclude requests with no assigned TA
         ->select('ta_id', 'request_type', DB::raw('count(*) as count'))
         ->groupBy('ta_id', 'request_type')
         ->with('ta:id,name')
         ->get()
         ->groupBy('ta_id')
         ->map(function ($requests, $taId) {
-            $taName = $requests->first()->ta->name ?? 'N/A';
+            $taName = $requests->first()->ta->name;  // No need for 'N/A' fallback as we're excluding null TAs
             $assistance = $requests->where('request_type', 'assistance')->sum('count');
             $signOff = $requests->where('request_type', 'sign-off')->sum('count');
 
@@ -572,22 +578,23 @@ public function exportToWord(Request $request)
 
         $requestsByTAAndType = UserRequest::select('ta_id', 'request_type', DB::raw('count(*) as count'))
             ->whereIn('status', ['accepted', 'completed'])
+            ->whereNotNull('ta_id')  // Ensure that only requests with an assigned TA are included
             ->groupBy('ta_id', 'request_type')
             ->with('ta:id,name')
             ->get()
             ->groupBy('ta_id')
             ->map(function ($requests, $taId) {
-                $taName = $requests->first()->ta->name ?? 'N/A';
+                $taName = $requests->first()->ta->name;
                 $assistance = $requests->where('request_type', 'assistance')->sum('count');
                 $signOff = $requests->where('request_type', 'sign-off')->sum('count');
-
+        
                 return [
                     'ta' => $taName,
                     'assistance' => $assistance,
                     'sign-off' => $signOff,
                 ];
             })
-            ->values();
+            ->values();        
 
         $requestsByCourseByTAByType = UserRequest::selectRaw('
             course_name,

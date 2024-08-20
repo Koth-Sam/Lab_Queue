@@ -1,9 +1,10 @@
 <div>
     @if(session('success'))
-        <div class="bg-green-500 text-white p-4 rounded mb-4">
-            {{ session('success') }}
-        </div>
+    <div class="p-4 rounded mb-4" style="background-color: #002147; color: white;">
+        {{ session('success') }}
+    </div>
     @endif
+
 
     @if($requests->isEmpty())
         <p>No requests found.</p>
@@ -114,10 +115,11 @@
                         <td class="py-2 px-4 border-b border-gray-200">{{ $request->accepted_at }}</td>
                         <td class="py-2 px-4 border-b border-gray-200">{{ $request->completed_at }}</td>
                         <td class="py-2 px-4 border-b border-gray-200">
-                            <a href="{{ route('admin.show', $request->id) }}" class="text-blue-500 hover:text-blue-700">
+                            <a href="{{ route('admin.show', $request->id) }}" class="text-blue-800 underline hover:text-blue-600">
                                 View Details
                             </a>
                         </td>
+                        
                         <td class="py-2 px-4 border-b border-gray-200">
                             <form action="{{ route('admin.update', $request->id) }}" method="POST">
                                 @csrf

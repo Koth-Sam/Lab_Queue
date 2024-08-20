@@ -13,10 +13,11 @@
     </div>
 
     @if(session('success'))
-        <div class="bg-green-500 text-white p-4 rounded mb-4">
-            {{ session('success') }}
-        </div>
+    <div class="p-4 rounded mb-4" style="background-color: #002147; color: white;">
+        {{ session('success') }}
+    </div>
     @endif
+
 
     @if($requests->isEmpty())
         <p>No requests found.</p>

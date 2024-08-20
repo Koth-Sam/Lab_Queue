@@ -5,77 +5,100 @@
 <div class="bg-white p-6 rounded-lg shadow-md">
     <div class="flex items-center mb-4">
         <h1 class="text-2xl font-bold mr-2">My Requests</h1>
-        <a href="{{ route('requests.create') }}" class="text-black px-2 py-2 border border-black-800 border-solid p-4 rounded">
+        <a href="{{ route('requests.create') }}" class="p-2 rounded font-bold" style="background-color: #023d80; color:#ffffff;">
             Add Request
         </a>
     </div>
 
     @if(session('success'))
-        <div class="bg-green-500 text-white p-4 rounded mb-4">
-            {{ session('success') }}
-        </div>
+    <div class="p-4 rounded mb-4" style="background-color: #023d80; color: white;">
+        {{ session('success') }}
+    </div>
     @endif
+
 
     @if($requests->isEmpty())
         <p>No requests found.</p>
     @else
-        <table class="min-w-full bg-white">
-            <thead>
-                <tr>
-                    <th class="py-2 px-4 border-b border-gray-200 cursor-pointer sortable" data-column="0">
-                        Course Name <i class="fas fa-sort"></i>
-                    </th>
-                    <th class="py-2 px-4 border-b border-gray-200 cursor-pointer sortable" data-column="1">
-                        Course Code <i class="fas fa-sort"></i>
-                    </th>
-                    <th class="py-2 px-4 border-b border-gray-200 cursor-pointer sortable" data-column="2">
-                        Request Type <i class="fas fa-sort"></i>
-                    </th>
-                    <th class="py-2 px-4 border-b border-gray-200 cursor-pointer sortable" data-column="3">
-                        Seat Number <i class="fas fa-sort"></i>
-                    </th>
-                    <th class="py-2 px-4 border-b border-gray-200 cursor-pointer sortable" data-column="4">Status <i class="fas fa-sort"></i></th>
-                    <th class="py-2 px-4 border-b border-gray-200 cursor-pointer sortable" data-column="5">Requested Date/Time <i class="fas fa-sort"></i></th>
-                    <th class="py-2 px-4 border-b border-gray-200 cursor-pointer sortable" data-column="6">TA Name <i class="fas fa-sort"></i></th>
-                    <th class="py-2 px-4 border-b border-gray-200 cursor-pointer sortable" data-column="7">Accepted Date/Time <i class="fas fa-sort"></i></th>
-                    <th class="py-2 px-4 border-b border-gray-200 cursor-pointer sortable" data-column="8">Completed Date/Time <i class="fas fa-sort"></i></th>
-                    <th class="py-2 px-4 border-b border-gray-200">Actions</th>
+    <table class="min-w-full bg-white border-collapse shadow-lg">
+        <thead>
+            <tr>
+                <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer hover:bg-gray-300 sortable" data-column="0">
+                    Course<br> Name <i class="fas fa-sort"></i>
+                </th>
+                <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer hover:bg-gray-300 sortable" data-column="1">
+                    Course<br> Code <i class="fas fa-sort"></i>
+                </th>
+                <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer hover:bg-gray-300 sortable" data-column="2">
+                    Request Type <i class="fas fa-sort"></i>
+                </th>
+                <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer hover:bg-gray-300 sortable" data-column="3">
+                    Seat <br>Number <i class="fas fa-sort"></i>
+                </th>
+                <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer hover:bg-gray-300 sortable" data-column="4">
+                    Status <i class="fas fa-sort"></i>
+                </th>
+                <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer hover:bg-gray-300 sortable" data-column="5">
+                    Requested Date/Time <i class="fas fa-sort"></i>
+                </th>
+                <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer hover:bg-gray-300 sortable" data-column="6">
+                    TA Name <i class="fas fa-sort"></i>
+                </th>
+                <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer hover:bg-gray-300 sortable" data-column="7">
+                    Accepted Date/Time <i class="fas fa-sort"></i>
+                </th>
+                <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer hover:bg-gray-300 sortable" data-column="8">
+                    Completed Date/Time <i class="fas fa-sort"></i>
+                </th>
+                <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300">
+                    Actions
+                </th>
+                <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300">
+                    
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($requests as $request)
+                <tr class="hover:bg-gray-100 transition-colors duration-200">
+                    <td class="py-3 px-5 border-b border-gray-300">{{ $request->course_name }}</td>
+                    <td class="py-3 px-5 border-b border-gray-300">{{ $request->course_code }}</td>
+                    <td class="py-3 px-5 border-b border-gray-300">{{ $request->request_type }}</td>
+                    <td class="py-3 px-5 border-b border-gray-300">{{ $request->seat_number }}</td>
+                    <td class="py-3 px-5 border-b border-gray-300">{{ $request->status }}</td>
+                    <td class="py-3 px-5 border-b border-gray-300"><div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->requested_at )->format('Y-m-d') }}</div>
+                        <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->requested_at)->format('H:i:s') }}</div></td>
+                    <td class="py-3 px-5 border-b border-gray-300">{{ $request->ta ? $request->ta->name : 'N/A' }}</td>
+                    <td class="py-3 px-5 border-b border-gray-300 "><div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->accepted_at)->format('Y-m-d') }}</div>
+                        <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->accepted_at)->format('H:i:s') }}</div>
+                    </td>
+                    <td class="py-3 px-5 border-b border-gray-300"><div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->completed_at)->format('Y-m-d') }}</div>
+                        <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->completed_at)->format('H:i:s') }}</div></td>
+                    <td class="py-3 px-5 border-b border-gray-300">
+                        <a href="{{ route('requests.show', $request->id) }}" class="text-blue-800 underline hover:text-blue-600">
+                            View Details
+                        </a>
+                    </td>
+                    <td class="py-3 px-5 border-b border-gray-300 text-center">
+                        @if($request->status === 'completed')
+                            <button 
+                                id="feedback-button-{{ $request->id }}" 
+                                class="text-white px-1 py-1 p-1 rounded disabled:opacity-50 disabled:cursor-not-allowed " 
+                                style="background-color: #023d80;" 
+                                onclick="openFeedbackModal({{ $request->id }})" 
+                                @if($request->isFeedbackSubmitted()) disabled @endif>
+                                Rate Your Experience
+                            </button>
+                        @else
+                            <span class="text-gray-500"> - </span>
+                        @endif
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach($requests as $request)
-                    <tr>
-                        <td class="py-2 px-4 border-b border-gray-200">{{ $request->course_name }}</td>
-                        <td class="py-2 px-4 border-b border-gray-200">{{ $request->course_code }}</td>
-                        <td class="py-2 px-4 border-b border-gray-200">{{ $request->request_type }}</td>
-                        <td class="py-2 px-4 border-b border-gray-200">{{ $request->seat_number }}</td>
-                        <td class="py-2 px-4 border-b border-gray-200">{{ $request->status }}</td>
-                        <td class="py-2 px-4 border-b border-gray-200">{{ $request->requested_at }}</td>
-                        <td class="py-2 px-4 border-b border-gray-200">{{ $request->ta ? $request->ta->name : 'N/A' }}</td>
-                        <td class="py-2 px-4 border-b border-gray-200">{{ $request->accepted_at }}</td>
-                        <td class="py-2 px-4 border-b border-gray-200">{{ $request->completed_at }}</td>
-                        <td class="py-2 px-4 border-b border-gray-200">
-                            <a href="{{ route('requests.show', $request->id) }}" class="text-blue-500 hover:text-blue-700">
-                                View Details
-                            </a>
-                        </td>
-                        <td class="py-2 px-4 border-b border-gray-200">
-                            @if($request->status === 'completed')
-                                <button 
-                                    id="feedback-button-{{ $request->id }}" 
-                                    class="text-black px-2 py-2 p-4 rounded disabled:opacity-50 disabled:cursor-not-allowed" 
-                                    onclick="openFeedbackModal({{ $request->id }})" 
-                                    @if($request->isFeedbackSubmitted()) disabled @endif>
-                                    Rate Your Experience
-                                </button>
-                            @else
-                                <span class="text-gray-500"> - </span>
-                            @endif
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+            @endforeach
+        </tbody>
+    </table>
+    
+    
     @endif
 </div>
 
@@ -92,7 +115,7 @@
                 <div class="sm:flex sm:items-start">
                     <div class="mt-3 text-center sm:mt-0 sm:text-left">
                         <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                            Rate and Comment Your Experience
+                            Rate and Comment about Your Experience
                         </h3>
                         <br>
                         <div class="mt-2">
@@ -115,7 +138,7 @@
                                 </div>
                                 <div class="flex justify-start">
                                     <button type="button" onclick="closeFeedbackModal()" class="bg-gray-500 text-white px-4 py-2 rounded-md mr-2">Cancel</button>
-                                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">Submit</button>
+                                    <button type="submit" class="text-white px-4 py-2 rounded-md" style="background-color: #023d80;">Submit</button>
                                 </div>
                             </form>
                         </div>

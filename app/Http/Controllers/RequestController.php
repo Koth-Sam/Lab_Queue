@@ -60,7 +60,7 @@ class RequestController extends Controller
 
         Request::create($requestData);
 
-        return redirect()->route('requests.view')->with('success', 'Request submitted successfully.');
+        return redirect()->route('requests.view')->with('success', 'Your request has been successfully submitted and added to our queue. You will be served shortly. Thank you for your patience.');
     }
 
     /**

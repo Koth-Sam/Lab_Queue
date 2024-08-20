@@ -54,7 +54,7 @@ class FeedbackController extends Controller
 
         Feedback::create([
             'request_id' => $id,
-            'student_id' => auth()->id(),
+            'student_id' => auth()->$userRequest->id,
             'rating' => $validatedData['rating'],
             'comments' => $validatedData['comments'] ?? null,
         ]);

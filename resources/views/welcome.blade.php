@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Swansea University Lab Assistance and Sign-off Requests System</title>
+    <title>Lab Assistance and Sign-off Requests System</title>
    
     <style>
         body {
