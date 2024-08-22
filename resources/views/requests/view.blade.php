@@ -16,7 +16,6 @@
     </div>
     @endif
 
-
     @if($requests->isEmpty())
         <p>No requests found.</p>
     @else
@@ -63,9 +62,9 @@
                 <tr class="hover:bg-gray-100 transition-colors duration-200">
                     <td class="py-3 px-5 border-b border-gray-300">{{ $request->course_name }}</td>
                     <td class="py-3 px-5 border-b border-gray-300">{{ $request->course_code }}</td>
-                    <td class="py-3 px-5 border-b border-gray-300">{{ $request->request_type }}</td>
+                    <td class="py-3 px-5 border-b border-gray-300">{{ ucfirst($request->request_type) }}</td>
                     <td class="py-3 px-5 border-b border-gray-300">{{ $request->seat_number }}</td>
-                    <td class="py-3 px-5 border-b border-gray-300">{{ $request->status }}</td>
+                    <td class="py-3 px-5 border-b border-gray-300">{{ ucfirst($request->status) }}</td>
                     <td class="py-3 px-5 border-b border-gray-300"><div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->requested_at )->format('Y-m-d') }}</div>
                         <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->requested_at)->format('H:i:s') }}</div></td>
                     <td class="py-3 px-5 border-b border-gray-300">{{ $request->ta ? $request->ta->name : 'N/A' }}</td>
