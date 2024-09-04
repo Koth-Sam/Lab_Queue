@@ -2,13 +2,20 @@
 @section('title', 'View All Requests')
 @section('content')
 <div class="bg-white p-4 rounded-lg shadow-md relative">
-    <h1 class="text-2xl font-bold mb-4">All Requests</h1>
+    <div class="flex justify-between items-center mb-4">
+        <h1 class="text-2xl font-bold">All Requests</h1>
+    
+    </div>    
 
     @if(session('success'))
     <div class="p-4 rounded mb-4" style="background-color: #002147; color: white;">
         {{ session('success') }}
     </div>
     @endif
+
+    <div id="notification" 
+     class="z-50 hidden text-white p-4 rounded-lg shadow-lg fixed top-5 right-5" 
+     style="background-color: #002147; opacity: 0.7;">New request added</div>  
 
     @if($requests->isEmpty())
         <p>No requests found.</p>
@@ -188,6 +195,24 @@
             });
         });
     });
+
+    document.addEventListener('DOMContentLoaded', function () {
+            if (window.Echo) {
+                window.Echo.channel('requests')  // Check if Echo is initialized
+                    .listenToAll((e,data) => {
+                        const notificationElement = document.getElementById('notification');
+                        if (notificationElement) {
+                            notificationElement.classList.remove('hidden'); // Show the notification
+                            setTimeout(() => {
+                                notificationElement.classList.add('hidden'); // Hide after 5 seconds
+                            }, 15000);
+                        }
+                    });
+            } else {
+                console.error('Laravel Echo is not initialized');
+            }
+        });
+
 </script>
 
 <style>

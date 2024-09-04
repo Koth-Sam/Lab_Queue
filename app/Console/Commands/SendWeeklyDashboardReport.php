@@ -63,16 +63,21 @@ class SendWeeklyDashboardReport extends Command
                 'data' => [
                     'labels' => ["Pending", "Accepted", "Completed"],
                     'datasets' => [
-                        [
-                            'label' => 'Requests',
-                            'data' => [
-                                (int) $requestsSummary->pending_requests,
-                                (int) ($requestsSummary->accepted_requests + $requestsSummary->completed_requests),
-                                (int) $requestsSummary->completed_requests,
-                            ],
-                        ],
-                    ],
+            [
+                
+                'data' => [
+                    (int) $requestsSummary->pending_requests,
+                    (int) $requestsSummary->accepted_requests,
+                    (int) $requestsSummary->completed_requests,
                 ],
+                'backgroundColor' => [
+                    'rgba(235, 16, 27, 0.6)',  // Red for Pending
+                    'rgba(236, 175, 9, 0.6)',  // Yellow for Accepted
+                    'rgba(7, 204, 10, 0.6)',  // Green for Completed
+                ],
+            ],
+        ],
+    ],
                 'options' => [
                     'scales' => [
                         'x' => [
@@ -93,11 +98,13 @@ class SendWeeklyDashboardReport extends Command
                             ],
                         ],
                     ],
+                    'plugins' => [
+                    'legend' => [
+                    'display' => false,  // Hide the legend
+            ],
+        ],
                 ],
             ];
-
-            // Log the configuration for debugging purposes
-            Log::info('Request Status Chart Config:', ['config' => $chartConfig]);
 
             // Set Chart.js version and device pixel ratio for better rendering
             $chart->setConfig(json_encode($chartConfig));
@@ -108,28 +115,32 @@ class SendWeeklyDashboardReport extends Command
 
             $chartUrl = $chart->getUrl();
 
-            // Weekly Performance of TAs Chart
-            $weeklyPerformanceChart = new QuickChart();
-
-            $weeklyPerformanceData = UserRequest::where('course_name', $courseName)
-                ->selectRaw('
-                    DATE_FORMAT(requested_at, "%Y-%u") as week,
-                    COUNT(*) as count
-                ')
-                ->groupBy('week')
+            $subjectAreaData = UserRequest::where('course_name', $courseName)
+                ->selectRaw('subject_area, COUNT(*) as count')
+                ->groupBy('subject_area')
                 ->get();
 
-            $weeklyLabels = $weeklyPerformanceData->pluck('week')->toArray();
-            $weeklyCounts = $weeklyPerformanceData->pluck('count')->toArray();
+            $subjectLabels = $subjectAreaData->pluck('subject_area')->toArray();
+            $requestCounts = $subjectAreaData->pluck('count')->toArray();
 
-            $weeklyPerformanceChartConfig = [
-                'type' => 'line',
+            // Generate the chart
+            $subjectAreaChart = new QuickChart();
+            $subjectAreaChartConfig = [
+                'type' => 'bar',
                 'data' => [
-                    'labels' => $weeklyLabels,
+                    'labels' => $subjectLabels,
                     'datasets' => [
                         [
-                            'label' => 'Weekly Requests',
-                            'data' => $weeklyCounts,
+                            
+                            'data' => $requestCounts,
+                            'backgroundColor' => [
+                                'rgba(198, 231, 19, 0.6)', 
+                                'rgba(34, 233, 136, 0.6)', 
+                                'rgba(245, 129, 34, 0.6)', 
+                                'rgba(228, 117, 243, 0.6)', 
+                                'rgba(153, 102, 255, 0.6)'
+                            ],
+                            
                         ],
                     ],
                 ],
@@ -138,7 +149,10 @@ class SendWeeklyDashboardReport extends Command
                         'x' => [
                             'title' => [
                                 'display' => true,
-                                'text' => 'Week',
+                                'text' => 'Subject Area',
+                            ],
+                            'grid' => [
+                                'display' => false,  // Optionally hide grid lines on x-axis
                             ],
                         ],
                         'y' => [
@@ -153,16 +167,21 @@ class SendWeeklyDashboardReport extends Command
                             ],
                         ],
                     ],
+                    'plugins' => [
+                    'legend' => [
+                    'display' => false,  // Hide the legend
+            ],
                 ],
+            ],
             ];
 
-            $weeklyPerformanceChart->setConfig(json_encode($weeklyPerformanceChartConfig));
-            $weeklyPerformanceChart->setVersion('4');  // Ensure the use of Chart.js v4
-            $weeklyPerformanceChart->setDevicePixelRatio(2);  // High-quality rendering
-            $weeklyPerformanceChart->setWidth(300);  // Set the chart width to 400px
-            $weeklyPerformanceChart->setHeight(200);
+            $subjectAreaChart->setConfig(json_encode($subjectAreaChartConfig));
+            $subjectAreaChart->setVersion('4');
+            $subjectAreaChart->setDevicePixelRatio(2);
+            $subjectAreaChart->setWidth(300);
+            $subjectAreaChart->setHeight(200);
 
-            $weeklyPerformanceChartUrl = $weeklyPerformanceChart->getUrl();
+            $subjectAreaChartUrl = $subjectAreaChart->getUrl();
 
          // Requests Handled by TA by Request Type by Course Chart
 $requestsByTAChart = new QuickChart();
@@ -188,7 +207,7 @@ foreach ($requestTypes as $type) {
     $datasets[] = [
         'label' => ucfirst($type),
         'data' => $data,
-        'backgroundColor' => $type === 'assistance' ? 'rgba(75, 192, 192, 0.6)' : 'rgba(255, 99, 132, 0.6)',
+        'backgroundColor' => $type === 'assistance' ? 'rgba(50, 34, 244, 0.6)' : 'rgba(50, 157, 20, 0.6)',
     ];
 }
 
@@ -235,7 +254,7 @@ Mail::to($email)->send(new WeeklyDashboardReport(
     $requestsSummary, 
     $feedbackComments, 
     $chartUrl, 
-    $weeklyPerformanceChartUrl,
+    $subjectAreaChartUrl,
     $requestsByTAChartUrl,
     $courseName,
     $signOffRequests,

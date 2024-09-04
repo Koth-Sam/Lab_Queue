@@ -33,8 +33,8 @@
         <h2>Request Status Chart</h2>
         <img src="{{ $chartUrl }}" alt="Requests Chart">
 
-        <h2>Weekly Performance of TAs</h2>
-        <img src="{{ $weeklyPerformanceChartUrl }}" alt="Weekly Performance Chart">
+        <h2>Requests by Subject Area</h2>
+        <img src="{{ $subjectAreaChartUrl }}" alt="Requests by Subject Area">
 
         <h2>Requests Handled by TA by Request Type</h2>
         <img src="{{ $requestsByTAChartUrl }}" alt="Requests by TA Chart">

@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request as HttpRequest;
 use App\Models\Request;
 use Illuminate\Support\Facades\Auth;
-
+use App\Events\RequestAdded;
+use Illuminate\Support\Facades\Log;
 
 class RequestController extends Controller
 {
@@ -57,9 +58,12 @@ class RequestController extends Controller
             }
             $requestData['screenshot'] = json_encode($screenshotPaths);
         } 
+      
+            Request::create($requestData);
 
-        Request::create($requestData);
-
+    // Broadcast the event
+    // broadcast(new RequestAdded("New request added"))->toOthers();
+    RequestAdded::dispatch("New request added");
         return redirect()->route('requests.view')->with('success', 'Your request has been successfully submitted and added to our queue. You will be served shortly. Thank you for your patience.');
     }
 

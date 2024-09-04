@@ -36,31 +36,34 @@ class FeedbackController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(HttpRequest $request,$id)
-    {
-        //
-        //$userRequest = Request::findOrFail($id);
+    public function store(HttpRequest $request, $id)
+{
+    // Validate the incoming request data
+    $validatedData = $request->validate([
+        'rating' => 'required|integer|min:1|max:5',
+        'comments' => 'nullable|string',
+    ]);
 
-        $validatedData = $request->validate([
-            'rating' => 'required|integer|min:1|max:5',
-            'comments' => 'nullable|string',
-        ]);
+    // Retrieve the user request by ID, or fail if not found
+    $userRequest = UserRequest::findOrFail($id);
 
-        $userRequest = UserRequest::findOrFail($id);
-
-        if ($userRequest->status !== 'completed' || $userRequest->student_id !== Auth::id()) {
-            return response()->json(['success' => false, 'message' => 'Feedback can only be given for completed requests.'], 403);
-        }
-
-        Feedback::create([
-            'request_id' => $id,
-            'student_id' => auth()->$userRequest->id,
-            'rating' => $validatedData['rating'],
-            'comments' => $validatedData['comments'] ?? null,
-        ]);
-
-        return response()->json(['success' => true, 'message' => 'Feedback submitted successfully.']);
+    // Check if the request is completed and if the current user is the owner
+    if ($userRequest->status !== 'completed' || $userRequest->student_id !== Auth::id()) {
+        return response()->json(['success' => false, 'message' => 'Feedback can only be given for completed requests.'], 403);
     }
+
+    // Create the feedback entry in the database
+    Feedback::create([
+        'request_id' => $id,
+        'student_id' => Auth::id(),  // Correctly retrieve the authenticated student's ID
+        'rating' => $validatedData['rating'],
+        'comments' => $validatedData['comments'] ?? null,
+    ]);
+
+    // Return a success response
+    return response()->json(['success' => true, 'message' => 'Feedback submitted successfully.']);
+}
+
     
 
     /**

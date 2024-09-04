@@ -20,7 +20,7 @@ class WeeklyDashboardReport extends Mailable
      public $requestsSummary;
      public $feedbackComments;
      public $chartUrl;
-     public $weeklyPerformanceChartUrl;
+     public $subjectAreaChartUrl;
      public $requestsByTAChartUrl;
      public $courseName;
      public $signOffRequests;
@@ -28,14 +28,14 @@ class WeeklyDashboardReport extends Mailable
      public $weekStartDate;
      public $weekEndDate;
 
-    public function __construct($requestsSummary, $feedbackComments, $chartUrl, $weeklyPerformanceChartUrl, $requestsByTAChartUrl, $courseName,$signOffRequests,
+    public function __construct($requestsSummary, $feedbackComments, $chartUrl, $subjectAreaChartUrl, $requestsByTAChartUrl, $courseName,$signOffRequests,
     $assistanceRequests,$weekStartDate, $weekEndDate)
     {
         //
         $this->requestsSummary = $requestsSummary;
         $this->feedbackComments = $feedbackComments;
         $this->chartUrl = $chartUrl;
-        $this->weeklyPerformanceChartUrl = $weeklyPerformanceChartUrl;
+        $this->subjectAreaChartUrl = $subjectAreaChartUrl;
         $this->requestsByTAChartUrl = $requestsByTAChartUrl;
         $this->courseName = $courseName;
         $this->signOffRequests = $signOffRequests;
@@ -53,7 +53,7 @@ class WeeklyDashboardReport extends Mailable
                 'requestsSummary' => $this->requestsSummary,
                 'feedbackComments' => $this->feedbackComments,
                 'chartUrl' => $this->chartUrl,
-                'weeklyPerformanceChartUrl' => $this->weeklyPerformanceChartUrl,
+                'subjectAreaChartUrl' => $this->subjectAreaChartUrl,
                 'requestsByTAChartUrl' => $this->requestsByTAChartUrl,
                 'courseName' => $this->courseName,
                 'signOffRequests' => $this->signOffRequests,

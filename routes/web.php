@@ -58,11 +58,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/api/requests-handled-by-ta-by-course', [AdminController::class, 'getRequestsHandledByTAByCourse'])->name('api.requests-by-ta-and-type');
     Route::get('/api/requests-by-subject-area', [AdminController::class, 'getRequestsBySubjectArea'])->name('api.requests-by-subject-area');
 
-    //Route::get('/admin/dashboard/export/pdf', [AdminController::class, 'exportToPDF'])->name('admin.dashboard.export.pdf');
-    Route::get('/admin/export-pdf', [AdminController::class, 'exportToPDF'])->name('admin.dashboard.export.pdf');
-    Route::get('/admin/dashboard/export/word', [AdminController::class, 'exportToWord'])->name('admin.dashboard.export.word');
-    
-
 });
 
 require __DIR__.'/auth.php';

@@ -4,11 +4,22 @@
 <div class="container mx-auto p-6">
     <div class="flex items-center justify-between mb-4">
         <h1 class="text-2xl font-bold">Admin Dashboard</h1>
+           <!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- html2canvas -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+
         <div class="flex space-x-2">
-            <a href="{{ route('admin.dashboard.export.pdf') }}" class="bg-blue-500 text-white px-4 py-2 rounded">Export to PDF</a>
-            <a href="{{ route('admin.dashboard.export.word') }}" class="bg-blue-500 text-white px-4 py-2 rounded">Export to Word</a>
+            <div class="flex space-x-2 mt-4">
+                <a href="#" id="exportPDFButton" class="bg-blue-800 text-white px-4 py-2 rounded">Export to PDF</a>
+                
+            </div>
+             
         </div>
     </div>
+
     <!-- Summary Cards -->
     <div class="border border-black-400-bold rounded-lg p-6 mb-4">
         <h1 class="text-2xl font-bold mb-4">Summary</h1>
@@ -35,6 +46,7 @@
             </div>
         </div>
     </div>
+    
 
     <!-- Widgets in two columns -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-6">
@@ -45,10 +57,10 @@
             <!-- Dropdown for Course Selection -->
             <div class="mb-4">
                 <label for="courseSelect" class="block text-md font-medium mb-2">Course</label>
-                <select id="courseSelect" class="form-select block w-full p-2 border rounded" style="width: 320px; height: 38px;">
+                <select id="courseSelect" class="form-select block w-full p-2 border rounded flex items-center" style="width: 320px; height: 40px; display: flex; align-items: center;">
                     <!-- Options will be populated dynamically -->
                 </select>
-            </div>
+            </div>            
 
             <div class="flex justify-center items-center">
                 <canvas id="requestsHandledByTAChart" class="w-full h-full"></canvas>
@@ -62,7 +74,7 @@
             <!-- Dropdown for Course Selection -->
             <div class="mb-4">
                 <label for="weeklyPerformanceCourseSelect" class="block text-md font-medium mb-2">Course</label>
-                <select id="weeklyPerformanceCourseSelect" class="form-select block w-full p-2 border rounded" style="width: 320px; height: 38px;">
+                <select id="weeklyPerformanceCourseSelect" class="form-select block w-full p-2 border rounded flex items-center" style="width: 320px; height: 40px; display: flex; align-items: center;">
                     <!-- Options will be populated dynamically -->
                 </select>
             </div>
@@ -79,7 +91,7 @@
             <!-- Dropdown for Course Selection -->
             <div class="mb-4">
                 <label for="TAPerformanceByTypeCourseSelect" class="block text-md font-medium mb-2">Course</label>
-                <select id="TAPerformanceByTypeCourseSelect" class="form-select block w-full p-2 border rounded" style="width: 320px; height: 38px;">
+                <select id="TAPerformanceByTypeCourseSelect" class="form-select block w-full p-2 border rounded flex items-center" style="width: 320px; height: 40px; display: flex; align-items: center;">
                     <!-- Options will be populated dynamically -->
                 </select>
             </div>
@@ -92,6 +104,14 @@
         <!-- Requests Handled by TA by Request Type -->
         <div class="bg-white p-4 rounded-lg shadow-md">
             <h2 class="text-lg font-bold mb-2">Requests Handled by TA by Request Type</h2>
+
+            <!-- Dropdown for Course Selection -->
+            <div class="mb-4">
+                <select id="courseSelect" class="form-select block w-full p-2 border rounded flex items-center" style="width: 320px; height: 40px; display: flex; align-items: center;visibility: hidden;">
+                    <!-- Options will be populated dynamically -->
+                </select>
+            </div>
+
             <div class="flex-grow flex justify-center items-center">
                 <canvas id="requestsByTAAndTypeChart" class="w-full h-full"></canvas>
             </div>
@@ -135,7 +155,7 @@
             <!-- Dropdown for Course Selection -->
             <div class="mb-4">
                 <label for="subjectAreaCourseSelect" class="block text-md font-medium mb-2">Course</label>
-                <select id="subjectAreaCourseSelect" class="form-select block w-full p-2 border rounded" style="width: 320px; height: 38px;">
+                <select id="subjectAreaCourseSelect" class="form-select block w-full p-2 border rounded flex items-center" style="width: 320px; height: 40px; display: flex; align-items: center;">
                     <!-- Options will be populated dynamically -->
                 </select>
             </div>
@@ -146,6 +166,14 @@
 
         <div class="bg-white p-4 rounded-lg shadow-md">
             <h2 class="text-lg font-bold mb-2">Ratings by TA</h2>
+
+            <!-- Dropdown for Course Selection -->
+            <div class="mb-4">
+                <select id="courseSelect" class="form-select block w-full p-2 border rounded flex items-center" style="width: 320px; height: 40px; display: flex; align-items: center;visibility: hidden;">
+                    <!-- Options will be populated dynamically -->
+                </select>
+            </div>            
+
             <div class="flex-grow flex justify-center items-center">
                 <canvas id="ratingsByTAChart" class="w-full h-full"></canvas>
             </div>
@@ -153,6 +181,12 @@
 
     </div>
 </div>
+
+<script>
+    // Make jsPDF accessible globally
+    window.jsPDF = window.jspdf.jsPDF;
+</script>
+
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
@@ -239,7 +273,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             return entry ? entry.count : 0;
                         }),
                         backgroundColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.2)`,
-                        borderColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 1)`,
+                        //borderColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 1)`,
                         borderWidth: 1,
                     };
                 });
@@ -797,7 +831,7 @@ const totalRatingsPerTA = ratingsByTAData.map(data => {
 const colors = {
     5: { background: 'rgba(0, 128, 0, 0.5)', border: 'rgba(0, 128, 0, 1)' }, // Green
     4: { background: 'rgba(144, 238, 144, 0.5)', border: 'rgba(144, 238, 144, 1)' }, // Light Green
-    3: { background: 'rgba(255, 204, 0, 0.5)', border: 'rgba(255, 204, 0, 1)' }, // Dark Yellow
+    3: { background: 'rgba(255, 204, 0, 0.5)', border: 'rgba(255, 160, 8, 0.8)' }, // Dark Yellow
     2: { background: 'rgba(255, 165, 0, 0.5)', border: 'rgba(255, 165, 0, 1)' }, // Orange
     1: { background: 'rgba(255, 0, 0, 0.5)', border: 'rgba(255, 0, 0, 1)' }, // Red
 };
@@ -872,8 +906,34 @@ const ratingsByTAChart = new Chart(ctx, {
     plugins: [ChartDataLabels] // Add the plugin to the chart
 });
 
+function exportDashboardToPDF() {
+    const dashboard = document.querySelector('.container');
+
+    html2canvas(dashboard, { scale: 3, useCORS: true, willReadFrequently: true }).then(canvas => {
+        // Create a new clean canvas for the PDF
+        const imgData = canvas.toDataURL('image/png');
+        
+        const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'px',
+            format: [canvas.width, canvas.height]
+        });
+
+        const imgWidth = pdf.internal.pageSize.getWidth();
+        const imgHeight = canvas.height * imgWidth / canvas.width;
+
+        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+        pdf.save('dashboard.pdf');
+    })
+}
+
+
+    // Add event listener to the export button
+    document.getElementById('exportPDFButton').addEventListener('click', exportDashboardToPDF);
+
 
 });
+
 </script>
 
 
