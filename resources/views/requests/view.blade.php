@@ -10,6 +10,12 @@
         </a>
     </div>
 
+    <div id="notification" 
+     class="z-50 hidden text-white p-4 rounded-lg shadow-lg fixed top-10 right-5" 
+     style="background-color: #002147; opacity: 1;">
+    </div>
+
+
     @if(session('success'))
     <div class="p-4 rounded mb-4" style="background-color: #023d80; color: white;">
         {{ session('success') }}
@@ -68,11 +74,24 @@
                     <td class="py-3 px-5 border-b border-gray-300"><div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->requested_at )->format('Y-m-d') }}</div>
                         <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->requested_at)->format('H:i:s') }}</div></td>
                     <td class="py-3 px-5 border-b border-gray-300">{{ $request->ta ? $request->ta->name : 'N/A' }}</td>
-                    <td class="py-3 px-5 border-b border-gray-300 "><div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->accepted_at)->format('Y-m-d') }}</div>
-                        <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->accepted_at)->format('H:i:s') }}</div>
+                    <td class="py-3 px-5 border-b border-gray-300">
+                        @if($request->accepted_at)
+                            <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->accepted_at)->format('Y-m-d') }}</div>
+                            <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->accepted_at)->format('H:i:s') }}</div>
+                        @else
+                            <span class="text-gray-500"> - </span> <!-- Placeholder if no accepted date -->
+                        @endif
                     </td>
-                    <td class="py-3 px-5 border-b border-gray-300"><div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->completed_at)->format('Y-m-d') }}</div>
-                        <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->completed_at)->format('H:i:s') }}</div></td>
+                    
+                    <td class="py-3 px-5 border-b border-gray-300">
+                        @if($request->completed_at)
+                            <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->completed_at)->format('Y-m-d') }}</div>
+                            <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->completed_at)->format('H:i:s') }}</div>
+                        @else
+                            <span class="text-gray-500"> - </span> <!-- Placeholder if no completed date -->
+                        @endif
+                    </td>
+                    
                     <td class="py-3 px-5 border-b border-gray-300">
                         <a href="{{ route('requests.show', $request->id) }}" class="text-blue-800 underline hover:text-blue-600">
                             View Details
@@ -240,15 +259,23 @@
             }
         })));
 
-        document.addEventListener('DOMContentLoaded', function () {
-        setTimeout(function() {
-            const successMessage = document.getElementById('successMessage');
-            if (successMessage) {
-                successMessage.style.display = 'none';
-            }
-        }, 5000);
+        Echo.private('requests.{{ auth()->id() }}')
+        .listen('RequestStatusUpdated', (e) => {
+            let message = `Your request has been ${e.status} by ${e.ta_name}`;
+            showNotification(message);
+        });
+
+        function showNotification(message) {
+    let notification = document.getElementById('notification');
+    notification.innerText = message;
+    notification.classList.remove('hidden');
     
-    })
+    // Automatically hide the notification after 10 seconds
+    setTimeout(() => {
+        notification.classList.add('hidden');
+    }, 10000);
+        }
+
 });
 
 </script>

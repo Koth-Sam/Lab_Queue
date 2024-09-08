@@ -80,8 +80,9 @@
                 datasets: [{
                     label: 'Requests Handled',
                     data: handledCounts,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 0.9)',
+                    borderWidth: 1,
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
                     fill: false
                 }]
             }, {
@@ -125,14 +126,14 @@
                     label: 'Requests by Status',
                     data: statusCounts,
                     backgroundColor: [
-                        'rgba(255, 99, 132, 0.7)',
-                        'rgba(54, 162, 235, 0.7)',
-                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(252, 155, 62, 0.6)',
+                        'rgba(45, 224, 42, 0.5)',
+                        'rgba(247, 46, 46, 0.5)',
                     ],
                     borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
+                        'rgba(252, 155, 62, 1)',
+                        'rgba(45, 224, 42, 1)',
+                        'rgba(247, 46, 46, 1)',
                     ],
                     borderWidth: 1
                 }]
@@ -176,11 +177,15 @@
 
     const uniqueRequestTypes = Array.from(new Set(requestsHandledByRequestTypeData.map(data => data.request_type)));
 
-    const requestTypeDatasets = uniqueRequestTypes.map(requestType => ({
+    
+    const backgroundColors = ['rgba(153, 102, 255, 0.2)', 'rgba(28, 202, 66, 0.3)']; // Light purple and Light red
+    const borderColors = ['rgba(153, 102, 255, 1)', 'rgba(28, 202, 66, 1)']; // Dark purple and Dark red
+
+    const requestTypeDatasets = uniqueRequestTypes.map((requestType, index) => ({
         label: requestType,
         data: requestTypeLabels.map(date => requestTypeData[date]?.[requestType] || 0),
-        backgroundColor: 'rgba(153, 102, 255, 0.2)',
-        borderColor: 'rgba(153, 102, 255, 1)',
+        backgroundColor: backgroundColors[index % 2], // Cycle through two colors
+        borderColor: borderColors[index % 2], // Cycle through two colors
         borderWidth: 1,
         fill: false
     }));
@@ -307,7 +312,7 @@
                 datasets: [{
                     label: 'Number of Requests',
                     data: courseCounts,
-                    backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                    backgroundColor: 'rgba(255, 159, 10, 0.2)',
                     borderColor: 'rgba(255, 159, 64, 1)',
                     borderWidth: 1,
                     fill: true,

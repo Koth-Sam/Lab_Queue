@@ -7,6 +7,7 @@ use App\Models\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Events\RequestAdded;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class RequestController extends Controller
 {
@@ -89,7 +90,7 @@ class RequestController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update()
     {
         //
     }
@@ -106,4 +107,7 @@ class RequestController extends Controller
     {
         return view('student.home');
     }
+
+    
+
 }

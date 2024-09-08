@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Request as UserRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
+use App\Events\RequestStatusUpdated;
+use App\Models\User;
 
 class TAController extends Controller
 {
@@ -101,9 +104,21 @@ class TAController extends Controller
         
         $userRequest->save();
 
+        //$student = User::findOrFail($userRequest->student_id);
+        broadcast(new RequestStatusUpdated($userRequest));
+           
         return redirect()->route('ta.index')->with('success');
     }
 
+    public function refresh()
+{
+    //$requests = UserRequest::orderBy('requested_at', 'desc')->get();
+    $requests = UserRequest::with('ta')->orderBy('requested_at', 'desc')->get();
+
+    return response()->json([
+        'requests' => $requests
+    ]);
+}
 
     public function dashboard()
     {

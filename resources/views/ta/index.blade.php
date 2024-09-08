@@ -2,9 +2,12 @@
 @section('title', 'View All Requests')
 @section('content')
 <div class="bg-white p-4 rounded-lg shadow-md relative">
-    <div class="flex justify-between items-center mb-4">
+
+    <div class="flex items-center mb-4">
         <h1 class="text-2xl font-bold">All Requests</h1>
-    
+        <button id="refresh-btn" class=" ml-6 mb-0" style="color: #002147;" title="Refresh Page">
+            <i id="refresh-icon" class="fas fa-sync-alt"></i>
+        </button>        
     </div>    
 
     @if(session('success'))
@@ -14,12 +17,13 @@
     @endif
 
     <div id="notification" 
-     class="z-50 hidden text-white p-4 rounded-lg shadow-lg fixed top-5 right-5" 
-     style="background-color: #002147; opacity: 0.7;">New request added</div>  
+     class="z-50 hidden text-white p-4 rounded-lg shadow-lg fixed top-10 right-5" 
+     style="background-color: #002147; opacity: 1;">New request added!</div>  
 
     @if($requests->isEmpty())
         <p>No requests found.</p>
     @else
+    <div id="request-list-container"> 
         <table class="min-w-full bg-white border-collapse shadow-lg">
             <thead>
                 <tr>
@@ -109,11 +113,14 @@
                     <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300" data-column="completed_at">
                         Completed Date/Time <i class="fas fa-sort" onclick="sortTable('completed_at', '{{ request('sort') == 'completed_at' && request('order') == 'asc' ? 'desc' : 'asc' }}')"></i>
                     </th>
+                    <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable" data-column="waiting_time">
+                        Waiting Time <i class="fas fa-sort" onclick="sortTable('waiting_time', '{{ request('sort') == 'waiting_time' && request('order') == 'asc' ? 'desc' : 'asc' }}')"></i>
+                    </th>
                     <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300">Actions</th>
                     <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300"></th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="request-list">
                 @foreach($requests as $request)
                     <tr class="hover:bg-gray-100 transition-colors duration-200">
                         <td class="py-3 px-5 border-b border-gray-300">{{ $request->course_name }}</td>
@@ -124,16 +131,42 @@
                         <td class="py-3 px-5 border-b border-gray-300"><div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->requested_at )->format('Y-m-d') }}</div>
                             <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->requested_at)->format('H:i:s') }}</div></td>
                         <td class="py-3 px-5 border-b border-gray-300">{{ $request->ta ? $request->ta->name : 'N/A' }}</td>
-                        <td class="py-3 px-5 border-b border-gray-300"><div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->accepted_at)->format('Y-m-d') }}</div>
-                            <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->accepted_at)->format('H:i:s') }}</div>
+                        <td class="py-3 px-5 border-b border-gray-300">
+                            @if($request->accepted_at && $request->status === 'accepted' || $request->status === 'completed')
+                                <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->accepted_at)->format('Y-m-d') }}</div>
+                                <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->accepted_at)->format('H:i:s') }}</div>
+                            @else
+                                <span class="text-gray-500"> - </span> <!-- Placeholder if no accepted date -->
+                            @endif
                         </td>
-                        <td class="py-3 px-5 border-b border-gray-300"><div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->completed_at)->format('Y-m-d') }}</div>
-                            <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->completed_at)->format('H:i:s') }}</div></td>
+           
+                        <td class="py-3 px-5 border-b border-gray-300">
+                            @if($request->completed_at && $request->status === 'completed')
+                                <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->completed_at)->format('Y-m-d') }}</div>
+                                <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->completed_at)->format('H:i:s') }}</div>
+                            @else
+                                <span class="text-gray-500"> - </span> <!-- Placeholder if no completed date -->
+                            @endif
+                        </td>
+                        <td class="py-2 px-4 border-b border-gray-200">
+                            @if($request->accepted_at && $request->completed_at)
+                                @php
+                                    $accepted = \Carbon\Carbon::parse($request->accepted_at);
+                                    $completed = \Carbon\Carbon::parse($request->completed_at);
+                                    $waitingTime = $accepted->diffInMinutes($completed);
+                                    $waitingTime = round($waitingTime);
+                                @endphp
+                                {{ $waitingTime }} mins.
+                            @else
+                                -
+                            @endif
+                        </td>     
                         <td class="py-3 px-5 border-b border-gray-300">
                             <a href="{{ route('ta.show', $request->id) }}" class="text-blue-800 underline hover:text-blue-600">
                                 View Details
                             </a>
                         </td>
+                        
                         <td class="py-3 px-5 border-b border-gray-300">
                             <form action="{{ route('ta.update', $request->id) }}" method="POST">
                                 @csrf
@@ -149,11 +182,13 @@
                 @endforeach
             </tbody>
         </table>
+    </div>
     @endif
 </div>
 
-
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
+
     function applyFilter(column) {
         const checkboxes = document.querySelectorAll('#filter-' + column + ' input[type="checkbox"]:checked');
         const selectedOptions = Array.from(checkboxes).map(checkbox => checkbox.value);
@@ -205,7 +240,7 @@
                             notificationElement.classList.remove('hidden'); // Show the notification
                             setTimeout(() => {
                                 notificationElement.classList.add('hidden'); // Hide after 5 seconds
-                            }, 15000);
+                            }, 10000);
                         }
                     });
             } else {
@@ -213,6 +248,68 @@
             }
         });
 
+        document.getElementById('refresh-btn').addEventListener('click', function() {
+            const refreshIcon = document.getElementById('refresh-icon');
+            refreshIcon.classList.add('animate-spin'); 
+    axios.get('{{ route('ta.refresh') }}')
+        .then(function (response) {
+            // Clear the current request list
+            document.getElementById('request-list').innerHTML = '';
+
+            // Append the updated list of requests as table rows
+            response.data.requests.forEach(request => {
+                let acceptedAt = request.accepted_at ? request.accepted_at : '<span class="text-gray-500"> - </span>';
+                let completedAt = request.completed_at ? request.completed_at : '<span class="text-gray-500"> - </span>';
+                
+                // Make sure the TA name is correctly displayed
+                let taName = request.ta && request.ta.name ? request.ta.name : 'N/A';
+
+                // Build the Status dropdown and set the selected value based on the request status
+                let statusDropdown = `
+                    <select name="status" class="block py-2 px-4 border rounded focus:outline-none focus:border-blue-500" ${request.status === 'completed' ? 'disabled' : ''}>
+                        <option value="pending" ${request.status === 'pending' ? 'selected' : ''}>Pending</option>
+                        <option value="accepted" ${request.status === 'accepted' ? 'selected' : ''}>Accepted</option>
+                        <option value="completed" ${request.status === 'completed' ? 'selected' : ''}>Completed</option>
+                    </select>
+                `;
+
+                // Add the row to the table with the appropriate values
+                let listItem = `
+                    <tr class="hover:bg-gray-100 transition-colors duration-200">
+                        <td class="py-3 px-5 border-b border-gray-300">${request.course_name}</td>
+                        <td class="py-3 px-5 border-b border-gray-300">${request.course_code}</td>
+                        <td class="py-3 px-5 border-b border-gray-300">${request.request_type}</td>
+                        <td class="py-3 px-5 border-b border-gray-300">${request.seat_number}</td>
+                        <td class="py-3 px-5 border-b border-gray-300">${request.status}</td>
+                        <td class="py-3 px-5 border-b border-gray-300">${request.requested_at ?? '<span class="text-gray-500"> - </span>'}</td>
+                        <td class="py-3 px-5 border-b border-gray-300">${taName}</td>
+                        <td class="py-3 px-5 border-b border-gray-300">${acceptedAt}</td>
+                        <td class="py-3 px-5 border-b border-gray-300">${completedAt}</td>
+                        <td class="py-3 px-5 border-b border-gray-300">
+                            <a href="/ta/show/${request.id}" class="text-blue-800 underline hover:text-blue-600">View Details</a>
+                        </td>
+                        <td class="py-3 px-5 border-b border-gray-300">
+                            <form action="/ta/update/${request.id}" method="POST">
+                                @csrf
+                                @method('PUT')
+                                ${statusDropdown}
+                            </form>
+                        </td>
+                    </tr>`;
+                
+                // Add the new row to the request list
+                document.getElementById('request-list').innerHTML += listItem;
+            });
+        })
+        .finally(function() {
+            refreshIcon.classList.remove('animate-spin'); // Remove spin class after refresh is done
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+});
+
+    
 </script>
 
 <style>

@@ -41,7 +41,11 @@ Route::middleware(['auth', 'role:ta'])->group(function () {
     Route::get('/ta/requests/{id}', [TAController::class, 'show'])->name('ta.show');
     Route::put('/ta/requests/{id}', [TAController::class, 'update'])->name('ta.update');
     Route::get('/ta/dashboard', [TAController::class, 'dashboard'])->name('ta.dashboard'); 
+    Route::get('/ta/refresh', [TAController::class, 'refresh'])->name('ta.refresh');
+
 });
+
+
 
 //Admin routes
 Route::middleware(['auth', 'role:admin'])->group(function () {
