@@ -31,7 +31,7 @@ class RequestStatusUpdated implements ShouldBroadcastNow
 
     public function broadcastOn()
     {
-        return new PrivateChannel('requests.'.$this->request->student_id); // Broadcasting to the student's private channel
+        return new PrivateChannel('requests.'.$this->request->student_id);
     }
 
     public function broadcastWith()

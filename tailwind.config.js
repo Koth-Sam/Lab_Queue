@@ -17,7 +17,7 @@ export default {
         },
 
         colors: {
-            'black-500': '#000000', // or your desired black shade
+            'black-500': '#000000', 
           },
 
           borderOpacity: {

@@ -11,7 +11,6 @@
         </div>
         @endif
     
-    
         @if($requests->isEmpty())
             <p>No requests found.</p>
         @else
@@ -112,6 +111,7 @@
                         <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable"></th>
                     </tr>
                 </thead>
+
                 <tbody id="requestsTableBody">
                     @foreach($requests as $request)
                         <tr class="hover:bg-gray-100 transition-colors duration-200">
@@ -168,11 +168,11 @@
             </table>
         @endif
     </div>    
-    
         
 </div>
 
 <script>
+
     function applyFilter(column) {
         const checkboxes = document.querySelectorAll('#filter-' + column + ' input[type="checkbox"]:checked');
         const selectedOptions = Array.from(checkboxes).map(checkbox => checkbox.value);
@@ -201,7 +201,7 @@
     function toggleFilter(column) {
         const filterElement = document.getElementById('filter-' + column);
         filterElement.classList.toggle('hidden');
-        event.stopPropagation(); // Stop the event from bubbling up to prevent triggering other events
+        event.stopPropagation();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -230,7 +230,7 @@
     .filter-dropdown div {
         display: flex;
         align-items: center;
-        justify-content: flex-start; /* Left align items */
+        justify-content: flex-start;
     }
 
     .filter-dropdown label {
@@ -239,12 +239,12 @@
 
     .filter-dropdown button {
         margin-top: 10px;
-        border: 1px solid #ccc; /* Add border to buttons */
+        border: 1px solid #ccc;
         padding: 5px 10px;
         background-color: white;
         cursor: pointer;
     }
-
-    
+ 
 </style>
+
 @endsection

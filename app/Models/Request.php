@@ -36,7 +36,7 @@ class Request extends Model
 
     public function isFeedbackSubmitted()
     {
-        // Check if a feedback entry exists for this request
+        
         return $this->feedback()->exists();
     }
 }

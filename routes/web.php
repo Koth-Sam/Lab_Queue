@@ -34,7 +34,7 @@ Route::middleware(['auth', 'role:student'])->group(function () {
 
 });
 
-    // TA routes
+// TA routes
 Route::middleware(['auth', 'role:ta'])->group(function () {
 
     Route::get('/ta/requests', [TAController::class, 'index'])->name('ta.index');
@@ -44,8 +44,6 @@ Route::middleware(['auth', 'role:ta'])->group(function () {
     Route::get('/ta/refresh', [TAController::class, 'refresh'])->name('ta.refresh');
 
 });
-
-
 
 //Admin routes
 Route::middleware(['auth', 'role:admin'])->group(function () {

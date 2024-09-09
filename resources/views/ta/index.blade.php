@@ -136,7 +136,7 @@
                                 <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->accepted_at)->format('Y-m-d') }}</div>
                                 <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->accepted_at)->format('H:i:s') }}</div>
                             @else
-                                <span class="text-gray-500"> - </span> <!-- Placeholder if no accepted date -->
+                                <span class="text-gray-500"> - </span>
                             @endif
                         </td>
            
@@ -145,7 +145,7 @@
                                 <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->completed_at)->format('Y-m-d') }}</div>
                                 <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->completed_at)->format('H:i:s') }}</div>
                             @else
-                                <span class="text-gray-500"> - </span> <!-- Placeholder if no completed date -->
+                                <span class="text-gray-500"> - </span>
                             @endif
                         </td>
                         <td class="py-2 px-4 border-b border-gray-200">
@@ -217,7 +217,7 @@
     function toggleFilter(column) {
         const filterElement = document.getElementById('filter-' + column);
         filterElement.classList.toggle('hidden');
-        event.stopPropagation(); // Stop the event from bubbling up to prevent triggering other events
+        event.stopPropagation();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -233,13 +233,13 @@
 
     document.addEventListener('DOMContentLoaded', function () {
             if (window.Echo) {
-                window.Echo.channel('requests')  // Check if Echo is initialized
+                window.Echo.channel('requests')
                     .listenToAll((e,data) => {
                         const notificationElement = document.getElementById('notification');
                         if (notificationElement) {
-                            notificationElement.classList.remove('hidden'); // Show the notification
+                            notificationElement.classList.remove('hidden');
                             setTimeout(() => {
-                                notificationElement.classList.add('hidden'); // Hide after 5 seconds
+                                notificationElement.classList.add('hidden');
                             }, 10000);
                         }
                     });
@@ -253,18 +253,15 @@
             refreshIcon.classList.add('animate-spin'); 
     axios.get('{{ route('ta.refresh') }}')
         .then(function (response) {
-            // Clear the current request list
+          
             document.getElementById('request-list').innerHTML = '';
 
-            // Append the updated list of requests as table rows
+         
             response.data.requests.forEach(request => {
                 let acceptedAt = request.accepted_at ? request.accepted_at : '<span class="text-gray-500"> - </span>';
                 let completedAt = request.completed_at ? request.completed_at : '<span class="text-gray-500"> - </span>';
-                
-                // Make sure the TA name is correctly displayed
                 let taName = request.ta && request.ta.name ? request.ta.name : 'N/A';
 
-                // Build the Status dropdown and set the selected value based on the request status
                 let statusDropdown = `
                     <select name="status" class="block py-2 px-4 border rounded focus:outline-none focus:border-blue-500" ${request.status === 'completed' ? 'disabled' : ''}>
                         <option value="pending" ${request.status === 'pending' ? 'selected' : ''}>Pending</option>
@@ -273,7 +270,6 @@
                     </select>
                 `;
 
-                // Add the row to the table with the appropriate values
                 let listItem = `
                     <tr class="hover:bg-gray-100 transition-colors duration-200">
                         <td class="py-3 px-5 border-b border-gray-300">${request.course_name}</td>
@@ -297,18 +293,16 @@
                         </td>
                     </tr>`;
                 
-                // Add the new row to the request list
                 document.getElementById('request-list').innerHTML += listItem;
             });
         })
         .finally(function() {
-            refreshIcon.classList.remove('animate-spin'); // Remove spin class after refresh is done
+            refreshIcon.classList.remove('animate-spin');
         })
         .catch(function (error) {
             console.log(error);
         });
 });
-
     
 </script>
 
@@ -325,7 +319,7 @@
     .filter-dropdown div {
         display: flex;
         align-items: center;
-        justify-content: flex-start; /* Left align items */
+        justify-content: flex-start;
     }
 
     .filter-dropdown label {
@@ -334,12 +328,11 @@
 
     .filter-dropdown button {
         margin-top: 10px;
-        border: 1px solid #ccc; /* Add border to buttons */
+        border: 1px solid #ccc;
         padding: 5px 10px;
         background-color: white;
         cursor: pointer;
     }
 
-    
 </style>
 @endsection

@@ -4,9 +4,7 @@
 <div class="container mx-auto p-6">
     <h1 class="text-2xl font-bold mb-4">TA Dashboard</h1>
 
-    <!-- Grid for Widgets -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Chart Card: Number of Requests Handled -->
         <div class="bg-white p-6 rounded-lg shadow-md flex flex-col h-96">
             <h2 class="text-xl font-semibold mb-4">Number of Requests Handled</h2>
             <div class="flex-grow flex justify-center items-center">
@@ -14,7 +12,7 @@
             </div>
         </div>
 
-        <!-- Chart Card: Number of Requests Handled by Status -->
+        <!-- Chart: Number of Requests Handled by Status -->
         <div class="bg-white p-6 rounded-lg shadow-md flex flex-col h-96">
             <h2 class="text-xl font-semibold mb-4">Number of Requests Handled by Request Status</h2>
             <div class="flex-grow flex justify-center items-center">
@@ -22,7 +20,7 @@
             </div>
         </div>
 
-        <!-- Chart Card: Number of Requests Handled by Request Type -->
+        <!-- Chart: Number of Requests Handled by Request Type -->
         <div class="bg-white p-6 rounded-lg shadow-md flex flex-col h-96">
             <h2 class="text-xl font-semibold mb-4">Number of Requests Handled by Request Type</h2>
             <div class="flex-grow flex justify-center items-center">
@@ -30,7 +28,7 @@
             </div>
         </div>
 
-        <!-- Chart Card: Requests by Status -->
+        <!-- Chart: Requests by Status -->
         <div class="bg-white p-6 rounded-lg shadow-md flex flex-col h-96">
             <h2 class="text-xl font-semibold mb-4">Requests by Status</h2>
             <div class="flex-grow flex justify-center items-center">
@@ -38,7 +36,7 @@
             </div>
         </div>
 
-        <!-- Chart Card: Number of Requests by Course -->
+        <!-- Chart: Number of Requests by Course -->
         <div class="bg-white p-6 rounded-lg shadow-md flex flex-col h-96">
             <h2 class="text-xl font-semibold mb-4">Number of Requests Handled by Course</h2>
             <div class="flex-grow flex justify-center items-center">
@@ -46,7 +44,7 @@
             </div>
         </div>
 
-        <!-- Chart Card: Weekly Performance -->
+        <!-- Chart: Weekly Performance -->
         <div class="bg-white p-6 rounded-lg shadow-md flex flex-col h-96">
             <h2 class="text-xl font-semibold mb-4">Weekly Performance</h2>
             <div class="flex-grow flex justify-center items-center">
@@ -55,13 +53,12 @@
         </div>
     </div>
     
-    <!-- Chart.js Library -->
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Chart Initialization Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Helper function to initialize a chart
+            
             function createChart(ctx, type, data, options) {
                 return new Chart(ctx, {
                     type: type,
@@ -155,39 +152,35 @@
                 aspectRatio: 1.5,
             });
     
-     // Requests Handled by Request Type Chart
-     const requestsHandledByRequestTypeData = @json($requestsHandledByRequestType);
-       
-    // Extract unique dates and sort them
-    const requestTypeLabels = Array.from(new Set(requestsHandledByRequestTypeData.map(data => data.date)))
-        .sort((a, b) => new Date(a) - new Date(b));
+            // Requests Handled by Request Type Chart
+            const requestsHandledByRequestTypeData = @json($requestsHandledByRequestType);
+            const requestTypeLabels = Array.from(new Set(requestsHandledByRequestTypeData.map(data => data.date)))
+                .sort((a, b) => new Date(a) - new Date(b));
+            const requestTypeData = requestTypeLabels.reduce((acc, date) => {
+                acc[date] = {};
+                return acc;
+            }, {});
 
-    // Rebuild the data structure to match the unique dates
-    const requestTypeData = requestTypeLabels.reduce((acc, date) => {
-        acc[date] = {};
-        return acc;
-    }, {});
+            requestsHandledByRequestTypeData.forEach(data => {
+                if (!requestTypeData[data.date]) {
+                    requestTypeData[data.date] = {};
+                }
+                requestTypeData[data.date][data.request_type] = data.count;
+            });
 
-    requestsHandledByRequestTypeData.forEach(data => {
-        if (!requestTypeData[data.date]) {
-            requestTypeData[data.date] = {};
-        }
-        requestTypeData[data.date][data.request_type] = data.count;
-    });
+        const uniqueRequestTypes = Array.from(new Set(requestsHandledByRequestTypeData.map(data => data.request_type)));
 
-    const uniqueRequestTypes = Array.from(new Set(requestsHandledByRequestTypeData.map(data => data.request_type)));
+        
+        const backgroundColors = ['rgba(153, 102, 255, 0.2)', 'rgba(28, 202, 66, 0.3)'];
+        const borderColors = ['rgba(153, 102, 255, 1)', 'rgba(28, 202, 66, 1)'];
 
-    
-    const backgroundColors = ['rgba(153, 102, 255, 0.2)', 'rgba(28, 202, 66, 0.3)']; // Light purple and Light red
-    const borderColors = ['rgba(153, 102, 255, 1)', 'rgba(28, 202, 66, 1)']; // Dark purple and Dark red
-
-    const requestTypeDatasets = uniqueRequestTypes.map((requestType, index) => ({
-        label: requestType,
-        data: requestTypeLabels.map(date => requestTypeData[date]?.[requestType] || 0),
-        backgroundColor: backgroundColors[index % 2], // Cycle through two colors
-        borderColor: borderColors[index % 2], // Cycle through two colors
-        borderWidth: 1,
-        fill: false
+        const requestTypeDatasets = uniqueRequestTypes.map((requestType, index) => ({
+            label: requestType,
+            data: requestTypeLabels.map(date => requestTypeData[date]?.[requestType] || 0),
+            backgroundColor: backgroundColors[index % 2],
+            borderColor: borderColors[index % 2],
+            borderWidth: 1,
+            fill: false
     }));
 
     createChart(document.getElementById('requestsHandledByRequestTypeChart').getContext('2d'), 'line', {
@@ -305,66 +298,65 @@
             const courseLabels = requestsHandledByCourseData.map(data => data.course_name);
             const courseCounts = requestsHandledByCourseData.map(data => data.count);
 
-        new Chart(document.getElementById('requestsHandledByCourseChart'), {
-            type: 'bar',
-            data: {
-                labels: courseLabels,
-                datasets: [{
-                    label: 'Number of Requests',
-                    data: courseCounts,
-                    backgroundColor: 'rgba(255, 159, 10, 0.2)',
-                    borderColor: 'rgba(255, 159, 64, 1)',
-                    borderWidth: 1,
-                    fill: true,
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(tooltipItem) {
-                                return `${tooltipItem.label}: ${tooltipItem.raw.toLocaleString()}`;
+            new Chart(document.getElementById('requestsHandledByCourseChart'), {
+                type: 'bar',
+                data: {
+                    labels: courseLabels,
+                    datasets: [{
+                        label: 'Number of Requests',
+                        data: courseCounts,
+                        backgroundColor: 'rgba(255, 159, 10, 0.2)',
+                        borderColor: 'rgba(255, 159, 64, 1)',
+                        borderWidth: 1,
+                        fill: true,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    return `${tooltipItem.label}: ${tooltipItem.raw.toLocaleString()}`;
+                                }
                             }
                         }
-                    }
-                },
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Course'
-                        },
                     },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Number of Requests'
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Course'
+                            },
                         },
-                        min: 0,
-                        ticks: {
-                            beginAtZero: true,
-                            stepSize: 1,
-                            callback: function(value) {
-                                if (Number.isInteger(value)) {
-                                    return value;
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Number of Requests'
+                            },
+                            min: 0,
+                            ticks: {
+                                beginAtZero: true,
+                                stepSize: 1,
+                                callback: function(value) {
+                                    if (Number.isInteger(value)) {
+                                        return value;
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
-        });
-
-          
+            });
+      
             // Weekly Performance Chart
             const weeklyPerformanceData = @json($weeklyPerformance);
             const weeklyLabels = weeklyPerformanceData.map(data => {
-                const year = data.week.toString().substr(0, 4); // Extract year from week
-                const week = data.week.toString().substr(4); // Extract week number
+                const year = data.week.toString().substr(0, 4);
+                const week = data.week.toString().substr(4);
                 return `${year}-${week}`;
             });
     
@@ -418,5 +410,7 @@
                 }
             });
         });
+        
     </script>
+
 @endsection

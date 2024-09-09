@@ -62,9 +62,8 @@ class RequestController extends Controller
       
             Request::create($requestData);
 
-    // Broadcast the event
-    // broadcast(new RequestAdded("New request added"))->toOthers();
-    RequestAdded::dispatch("New request added");
+        RequestAdded::dispatch("New request added!");
+
         return redirect()->route('requests.view')->with('success', 'Your request has been successfully submitted and added to our queue. You will be served shortly. Thank you for your patience.');
     }
 

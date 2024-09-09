@@ -15,7 +15,6 @@ class AdminController extends Controller
     {
         $query = UserRequest::query();
 
-        // Handle filtering
         if ($request->has('course_name')) {
             $courseNames = explode(',', $request->course_name);
             $query->whereIn('course_name', $courseNames);
@@ -39,7 +38,7 @@ class AdminController extends Controller
         if ($request->has('ta_name')) {
             $taNames = explode(',', $request->ta_name);
             if (in_array('N/A', $taNames)) {
-                // Include rows where ta_id is null or matches any selected TA names
+             
                 $query->where(function ($q) use ($taNames) {
                     $q->whereNull('ta_id')->orWhereIn('ta_id', function ($query) use ($taNames) {
                         $query->select('id')
@@ -48,24 +47,23 @@ class AdminController extends Controller
                     });
                 });
             } else {
-                // Regular filter by ta_id
+             
                 $query->whereHas('ta', function ($q) use ($taNames) {
                     $q->whereIn('name', $taNames);
                 });
             }
         }
 
-        // Handle sorting
         $sortField = $request->get('sort', 'requested_at');
         $sortOrder = $request->get('order', 'desc');
         $requests = $query->orderBy($sortField, $sortOrder)->get();
 
-        // Get unique values for filters
         $uniqueCourses = UserRequest::distinct()->pluck('course_name');
         $uniqueCourseCodes = UserRequest::distinct()->pluck('course_code');
         $uniqueRequestTypes = UserRequest::distinct()->pluck('request_type');
         $uniqueStatuses = UserRequest::distinct()->pluck('status');
         $uniqueTANames = UserRequest::with('ta')->get()->pluck('ta.name')->filter()->unique()->values();
+
         if (! $uniqueTANames->contains('N/A')) {
             $uniqueTANames->push('N/A');
         }
@@ -113,7 +111,6 @@ class AdminController extends Controller
 
         return redirect()->route('admin.index');
     }
-
     
     public function dashboard()
     {
@@ -263,8 +260,8 @@ class AdminController extends Controller
     
         $weeklyPerformanceByCourse = UserRequest::selectRaw('YEARWEEK(requested_at, 3) as week, ta_id, count(*) as count')
             ->where('course_name', $courseName)
-            ->whereIn('status', ['accepted', 'completed'])  // Include only accepted or completed requests
-            ->whereNotNull('ta_id')  // Exclude requests with no assigned TA
+            ->whereIn('status', ['accepted', 'completed'])
+            ->whereNotNull('ta_id')
             ->groupBy('week', 'ta_id')
             ->orderBy('week', 'asc')
             ->with('ta:id,name')
@@ -272,7 +269,7 @@ class AdminController extends Controller
             ->map(function ($item) {
                 return [
                     'week' => $item->week,
-                    'ta' => $item->ta->name,  // No need for 'N/A' fallback as we're excluding null TAs
+                    'ta' => $item->ta->name,
                     'count' => $item->count
                 ];
             });
@@ -280,27 +277,24 @@ class AdminController extends Controller
         return response()->json($weeklyPerformanceByCourse);
     }
     
-
-
     public function getRequestsByTAAndType()
     {
-        // Fetch and group data
+        
         $data = UserRequest::select('ta_id', 'request_type', DB::raw('count(*) as count'))
-            ->whereIn('status', ['accepted', 'completed']) // Ensure to only consider accepted and completed requests
+            ->whereIn('status', ['accepted', 'completed'])
             ->groupBy('ta_id', 'request_type')
-            ->with('ta:id,name') // Ensure `ta` relationship is eager loaded with only required fields
+            ->with('ta:id,name')
             ->get()
-            ->groupBy('ta_id'); // Group data by TA
+            ->groupBy('ta_id');
 
-        // Format data for chart
         $formattedData = $data->map(function ($requests, $taId) {
-            $ta = $requests->first()->ta; // Assuming all requests for a TA have the same TA data
+            $ta = $requests->first()->ta;
             return [
                 'ta' => $ta ? $ta->name : 'Unknown',
                 'assistance' => $requests->where('request_type', 'assistance')->sum('count'),
                 'sign-off' => $requests->where('request_type', 'sign-off')->sum('count'),
             ];
-        })->values(); // Convert to a collection
+        })->values();
 
         return response()->json($formattedData);
     }
@@ -314,15 +308,15 @@ class AdminController extends Controller
     }
 
         $requestsHandledByTA = UserRequest::where('course_name', $courseName)
-        ->whereIn('status', ['accepted', 'completed'])  // Include only accepted or completed requests
-        ->whereNotNull('ta_id')  // Exclude requests with no assigned TA
+        ->whereIn('status', ['accepted', 'completed'])
+        ->whereNotNull('ta_id')
         ->select('ta_id', 'request_type', DB::raw('count(*) as count'))
         ->groupBy('ta_id', 'request_type')
         ->with('ta:id,name')
         ->get()
         ->groupBy('ta_id')
         ->map(function ($requests, $taId) {
-            $taName = $requests->first()->ta->name;  // No need for 'N/A' fallback as we're excluding null TAs
+            $taName = $requests->first()->ta->name;
             $assistance = $requests->where('request_type', 'assistance')->sum('count');
             $signOff = $requests->where('request_type', 'sign-off')->sum('count');
 
@@ -339,9 +333,8 @@ class AdminController extends Controller
 
     public function getRequestsBySubjectArea(Request $request)
     {
+
      $courseName = $request->query('course_name');
- 
-     // Fetch requests grouped by subject_area for the given course
      $requestsBySubjectArea = UserRequest::select('subject_area', DB::raw('count(*) as count'))
          ->when($courseName, function ($query, $courseName) {
              return $query->where('course_name', $courseName);
@@ -351,7 +344,7 @@ class AdminController extends Controller
          ->get()
          ->map(function ($request) {
              return [
-                 'subject_area' => $request->subject_area ?? 'Unknown', // Ensure 'Unknown' is handled
+                 'subject_area' => $request->subject_area ?? 'Unknown',
                  'count' => $request->count,
              ];
          });
@@ -362,21 +355,21 @@ class AdminController extends Controller
 
     public function getRatingsByTA()
 {
-    // Assuming there is a relationship between UserRequest and Feedback
-    $ratingsByTA = UserRequest::join('feedback', 'requests.id', '=', 'feedback.request_id') // Adjust the foreign key if needed
-        ->whereNotNull('feedback.rating') // Ensure only requests with ratings are considered
-        ->where('requests.status', 'completed') // Only completed requests
+    
+    $ratingsByTA = UserRequest::join('feedback', 'requests.id', '=', 'feedback.request_id')
+        ->whereNotNull('feedback.rating')
+        ->where('requests.status', 'completed')
         ->select('requests.ta_id', 'feedback.rating', DB::raw('count(*) as count'))
         ->groupBy('requests.ta_id', 'feedback.rating')
-        ->with('ta:id,name') // Ensure `ta` relationship is eager loaded
+        ->with('ta:id,name')
         ->get()
         ->groupBy('ta_id')
         ->map(function ($ratings, $taId) {
-            $taName = $ratings->first()->ta->name ?? 'Unknown'; // Handle TA name
-            $ratingCounts = [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0]; // Initialize rating counts
+            $taName = $ratings->first()->ta->name ?? 'Unknown';
+            $ratingCounts = [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0];
 
             foreach ($ratings as $rating) {
-                $ratingCounts[$rating->rating] = $rating->count; // Populate counts for each rating
+                $ratingCounts[$rating->rating] = $rating->count;
             }
 
             return [

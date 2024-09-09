@@ -17,10 +17,11 @@
 
 
     @if(session('success'))
-    <div class="p-4 rounded mb-4" style="background-color: #023d80; color: white;">
+    <div id="success-message" class="p-4 rounded mb-4" style="background-color: #023d80; color: white;">
         {{ session('success') }}
     </div>
     @endif
+
 
     @if($requests->isEmpty())
         <p>No requests found.</p>
@@ -79,7 +80,7 @@
                             <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->accepted_at)->format('Y-m-d') }}</div>
                             <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->accepted_at)->format('H:i:s') }}</div>
                         @else
-                            <span class="text-gray-500"> - </span> <!-- Placeholder if no accepted date -->
+                            <span class="text-gray-500"> - </span>
                         @endif
                     </td>
                     
@@ -88,7 +89,7 @@
                             <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->completed_at)->format('Y-m-d') }}</div>
                             <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->completed_at)->format('H:i:s') }}</div>
                         @else
-                            <span class="text-gray-500"> - </span> <!-- Placeholder if no completed date -->
+                            <span class="text-gray-500"> - </span>
                         @endif
                     </td>
                     
@@ -126,7 +127,7 @@
         <div class="fixed inset-0 transition-opacity" aria-hidden="true">
             <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
         </div>
-        <!-- Modal content -->
+    
         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
         <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full">
             <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
@@ -168,6 +169,16 @@
 </div>
 
 <script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        let successMessage = document.getElementById('success-message');
+        if (successMessage) {
+            setTimeout(() => {
+                successMessage.remove();
+            }, 3500);
+        }
+        });
+
     function openFeedbackModal(requestId) 
     {
         document.getElementById('feedbackRequestId').value = requestId;
@@ -181,7 +192,7 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('feedbackForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent the default form submission
+            event.preventDefault();
 
             var requestId = document.getElementById('feedbackRequestId').value;
             var feedbackButton = document.getElementById('feedback-button-' + requestId);
@@ -199,14 +210,13 @@
                 body: formData,
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': formData.get('_token') // Add CSRF token
+                    'X-CSRF-TOKEN': formData.get('_token')
                 }
             })
             .then(response => response.json())
             .then(data => {
                 closeFeedbackModal();
-                // Optionally handle success message
-                console.log('Feedback submitted successfully');
+            
             })
             .catch(error => console.error('Error submitting feedback:', error));
         });
@@ -225,15 +235,15 @@
             const columnIdx = Array.from(th.parentNode.children).indexOf(th);
 
             if (this.sortOrder === undefined || this.sortOrder === null) {
-                this.sortOrder = 1; // Ascending
+                this.sortOrder = 1;
             } else if (this.sortOrder === 1) {
-                this.sortOrder = -1; // Descending
+                this.sortOrder = -1;
             } else {
-                this.sortOrder = 0; // Default
+                this.sortOrder = 0;
             }
 
             if (this.sortOrder === 0) {
-                // Default sort by requested date/time descending
+              
                 Array.from(tbody.querySelectorAll('tr'))
                     .sort((a, b) => new Date(b.children[5].innerText) - new Date(a.children[5].innerText))
                     .forEach(tr => tbody.appendChild(tr));
@@ -245,12 +255,10 @@
                     .sort(comparer(columnIdx, this.sortOrder === 1))
                     .forEach(tr => tbody.appendChild(tr));
 
-                // Reset other headers' icons
                 document.querySelectorAll('th.sortable i').forEach(icon => {
                     icon.className = 'fas fa-sort';
                 });
 
-                // Update sorting icon
                 if (this.sortOrder === 1) {
                     th.querySelector('i').className = 'fas fa-sort-up';
                 } else {
@@ -266,15 +274,14 @@
         });
 
         function showNotification(message) {
-    let notification = document.getElementById('notification');
-    notification.innerText = message;
-    notification.classList.remove('hidden');
-    
-    // Automatically hide the notification after 10 seconds
-    setTimeout(() => {
-        notification.classList.add('hidden');
-    }, 10000);
-        }
+        let notification = document.getElementById('notification');
+        notification.innerText = message;
+        notification.classList.remove('hidden');
+        
+        setTimeout(() => {
+            notification.classList.add('hidden');
+        }, 10000);
+            }
 
 });
 

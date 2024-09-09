@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 @section('title', 'View Request Details')
 @section('content')
@@ -62,4 +61,5 @@
 
     <a href="{{ route('admin.index') }}" class="p-2 rounded" style="background-color: #002147; color:#ffffff ;">Back to List</a>
 </div>
+
 @endsection

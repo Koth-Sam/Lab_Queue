@@ -16,7 +16,6 @@ class TAController extends Controller
         
         $query = UserRequest::query();
 
-        // Handle filtering
         if ($request->has('course_name')) {
             $courseNames = explode(',', $request->course_name);
             $query->whereIn('course_name', $courseNames);

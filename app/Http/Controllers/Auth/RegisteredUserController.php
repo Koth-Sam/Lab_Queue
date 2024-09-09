@@ -43,10 +43,7 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // Assign the selected role to the user
         $user->assignRole($request->role);
-
-        // Also save the role in the `role` column if it exists
         $user->role = $request->role;
         $user->save();
 
@@ -54,7 +51,6 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        // Redirect based on the user's role
         if ($user->role == 'student') {
             return redirect()->route('student.home');
         } elseif ($user->role == 'ta') {

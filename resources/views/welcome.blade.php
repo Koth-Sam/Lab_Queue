@@ -10,7 +10,7 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #002147; /* Swansea University blue */
+            background-color: #002147;
             color: #ffffff; 
             display: flex;
             flex-direction: column;

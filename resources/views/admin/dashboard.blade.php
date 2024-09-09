@@ -4,19 +4,15 @@
 <div class="container mx-auto p-6">
     <div class="flex items-center justify-between mb-4">
         <h1 class="text-2xl font-bold">Admin Dashboard</h1>
-           <!-- jsPDF -->
+         
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<!-- html2canvas -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
 
         <div class="flex space-x-2">
             <div class="flex space-x-2 mt-4">
                 <a href="#" id="exportPDFButton" class="bg-blue-800 text-white px-4 py-2 rounded">Export to PDF</a>
-                
-            </div>
-             
+            </div>   
         </div>
     </div>
 
@@ -46,19 +42,15 @@
             </div>
         </div>
     </div>
-    
 
-    <!-- Widgets in two columns -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-6">
         <!-- Requests Handled by TA Widget -->
         <div class="bg-white p-4 rounded-lg shadow-md">
             <h2 class="text-lg font-bold mb-2">Requests Handled by TA by Subject</h2>
 
-            <!-- Dropdown for Course Selection -->
             <div class="mb-4">
                 <label for="courseSelect" class="block text-md font-medium mb-2">Course</label>
                 <select id="courseSelect" class="form-select block w-full p-2 border rounded flex items-center" style="width: 320px; height: 40px; display: flex; align-items: center;">
-                    <!-- Options will be populated dynamically -->
                 </select>
             </div>            
 
