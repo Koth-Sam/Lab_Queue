@@ -79,7 +79,7 @@
                     data: handledCounts,
                     borderColor: 'rgba(75, 192, 192, 0.9)',
                     borderWidth: 1,
-                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
                     fill: false
                 }]
             }, {
@@ -410,7 +410,7 @@
                 }
             });
         });
-        
+
     </script>
 
 @endsection

@@ -135,9 +135,9 @@
                             <td class="py-2 px-4 border-b border-gray-200">
                                 @if($request->accepted_at && $request->completed_at)
                                     @php
+                                        $requested = \Carbon\Carbon::parse($request->requested_at);
                                         $accepted = \Carbon\Carbon::parse($request->accepted_at);
-                                        $completed = \Carbon\Carbon::parse($request->completed_at);
-                                        $waitingTime = $accepted->diffInMinutes($completed);
+                                        $waitingTime = $requested->diffInMinutes($accepted);
                                         $waitingTime = round($waitingTime);
                                     @endphp
                                     {{ $waitingTime }} mins.
