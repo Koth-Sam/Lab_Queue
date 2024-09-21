@@ -49,16 +49,7 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        Auth::login($user);
-
-        if ($user->role == 'student') {
-            return redirect()->route('student.home');
-        } elseif ($user->role == 'ta') {
-            return redirect()->route('ta.dashboard');
-        } elseif ($user->role == 'admin') {
-            return redirect()->route('admin.dashboard');
-        }
-
+        return redirect()->route('login')->with('success', 'Account created successfully. Please log in.');
         
     }
 }

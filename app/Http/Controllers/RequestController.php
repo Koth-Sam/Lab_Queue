@@ -38,13 +38,14 @@ class RequestController extends Controller
         //
         $request->validate([
             'course_name' => 'required|string|max:255',
-            'course_code' => 'required|string|max:255',
+            'course_code' => ['required', 'string','max:255', 'regex:/^[A-Za-z0-9\s\-]+$/',],
             'request_type' => 'required|in:assistance,sign-off',
-            'seat_number' => 'required|string|max:255',
+            'seat_number' => ['required','string','max:255','regex:/^[A-Za-z0-9\s\-]+$/',],
             'description' => 'nullable|string',
             'subject_area' => 'required|string',
-            'screenshot' => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
+            'screenshots.*' => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
             'code_url' => 'nullable|url',
+        
         ]);
 
         $requestData = $request->all();
@@ -62,7 +63,7 @@ class RequestController extends Controller
       
             Request::create($requestData);
 
-        RequestAdded::dispatch("New request added!");
+        RequestAdded::dispatch("");
 
         return redirect()->route('requests.view')->with('success', 'Your request has been successfully submitted and added to our queue. You will be served shortly. Thank you for your patience.');
     }

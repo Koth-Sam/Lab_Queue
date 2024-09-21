@@ -56,7 +56,7 @@ class AdminController extends Controller
 
         $sortField = $request->get('sort', 'requested_at');
         $sortOrder = $request->get('order', 'desc');
-        $requests = $query->orderBy($sortField, $sortOrder)->get();
+        $requests = $query->orderBy($sortField, $sortOrder)->paginate(10);
 
         $uniqueCourses = UserRequest::distinct()->pluck('course_name');
         $uniqueCourseCodes = UserRequest::distinct()->pluck('course_code');

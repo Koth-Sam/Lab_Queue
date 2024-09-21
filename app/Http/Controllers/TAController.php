@@ -39,7 +39,7 @@ class TAController extends Controller
         if ($request->has('ta_name')) {
             $taNames = explode(',', $request->ta_name);
             if (in_array('N/A', $taNames)) {
-                // Include rows where ta_id is null or matches any selected TA names
+                
                 $query->where(function ($q) use ($taNames) {
                     $q->whereNull('ta_id')->orWhereIn('ta_id', function ($query) use ($taNames) {
                         $query->select('id')
@@ -48,19 +48,17 @@ class TAController extends Controller
                     });
                 });
             } else {
-                // Regular filter by ta_id
+                
                 $query->whereHas('ta', function ($q) use ($taNames) {
                     $q->whereIn('name', $taNames);
                 });
             }
         }
 
-        // Handle sorting
         $sortField = $request->get('sort', 'requested_at');
         $sortOrder = $request->get('order', 'desc');
-        $requests = $query->orderBy($sortField, $sortOrder)->get();
+        $requests = $query->orderBy($sortField, $sortOrder)->paginate(10);
 
-        // Get unique values for filters
         $uniqueCourses = UserRequest::distinct()->pluck('course_name');
         $uniqueCourseCodes = UserRequest::distinct()->pluck('course_code');
         $uniqueRequestTypes = UserRequest::distinct()->pluck('request_type');
@@ -110,14 +108,14 @@ class TAController extends Controller
     }
 
     public function refresh()
-{
+    {
     //$requests = UserRequest::orderBy('requested_at', 'desc')->get();
     $requests = UserRequest::with('ta')->orderBy('requested_at', 'desc')->get();
 
     return response()->json([
         'requests' => $requests
     ]);
-}
+    }
 
     public function dashboard()
     {
@@ -142,7 +140,6 @@ class TAController extends Controller
             ->groupBy('status')
             ->get();
     
-        // Ensure "Accepted" count includes "Completed" and show both even if "Accepted" is zero
         $completedCount = $requestsByStatus->where('status', 'Completed')->first()->count ?? 0;
         $acceptedCount = $requestsByStatus->where('status', 'Accepted')->first()->count ?? 0;
     
@@ -150,7 +147,6 @@ class TAController extends Controller
             $acceptedCount += $completedCount;
         }
     
-        // Ensure both statuses are represented in the output
         $requestsByStatus = collect([
             ['status' => 'Accepted', 'count' => $acceptedCount],
             ['status' => 'Completed', 'count' => $completedCount],
@@ -162,7 +158,6 @@ class TAController extends Controller
             ->orderBy('date', 'asc')
             ->get();
 
-        
         $requestsHandledByStatus = UserRequest::where('ta_id', $taId)
             ->selectRaw('DATE(requested_at) as date, status, count(*) as count')
             ->groupBy('date', 'status')

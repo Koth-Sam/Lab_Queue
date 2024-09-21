@@ -6,7 +6,7 @@
     <div class="flex items-center mb-4">
         <h1 class="text-2xl font-bold mr-2">My Requests</h1>
         <a href="{{ route('requests.create') }}" class="p-2 rounded font-bold" style="background-color: #023d80; color:#ffffff;">
-            Add Request
+        Submit a Request
         </a>
     </div>
 
@@ -115,9 +115,9 @@
                 </tr>
             @endforeach
         </tbody>
+
+ 
     </table>
-    
-    
     @endif
 </div>
 

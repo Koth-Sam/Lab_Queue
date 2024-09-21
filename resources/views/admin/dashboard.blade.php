@@ -46,7 +46,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-6">
         <!-- Requests Handled by TA Widget -->
         <div class="bg-white p-4 rounded-lg shadow-md">
-            <h2 class="text-lg font-bold mb-2">Requests Handled by TA by Subject</h2>
+            <h2 class="text-lg font-bold mb-2">Requests Handled by TA by Course</h2>
 
             <div class="mb-4">
                 <label for="courseSelect" class="block text-md font-medium mb-2">Course</label>
@@ -63,11 +63,10 @@
         <div class="bg-white p-4 rounded-lg shadow-md">
             <h2 class="text-lg font-bold mb-2">Weekly Performance of TAs</h2>
 
-            <!-- Dropdown for Course Selection -->
             <div class="mb-4">
                 <label for="weeklyPerformanceCourseSelect" class="block text-md font-medium mb-2">Course</label>
                 <select id="weeklyPerformanceCourseSelect" class="form-select block w-full p-2 border rounded flex items-center" style="width: 320px; height: 40px; display: flex; align-items: center;">
-                    <!-- Options will be populated dynamically -->
+
                 </select>
             </div>
 
@@ -80,11 +79,10 @@
         <div class="bg-white p-4 rounded-lg shadow-md">
             <h2 class="text-lg font-bold mb-2">Requests Handled by TA by Request Type by Course </h2>
 
-            <!-- Dropdown for Course Selection -->
             <div class="mb-4">
                 <label for="TAPerformanceByTypeCourseSelect" class="block text-md font-medium mb-2">Course</label>
                 <select id="TAPerformanceByTypeCourseSelect" class="form-select block w-full p-2 border rounded flex items-center" style="width: 320px; height: 40px; display: flex; align-items: center;">
-                    <!-- Options will be populated dynamically -->
+   
                 </select>
             </div>
 
@@ -97,10 +95,9 @@
         <div class="bg-white p-4 rounded-lg shadow-md">
             <h2 class="text-lg font-bold mb-2">Requests Handled by TA by Request Type</h2>
 
-            <!-- Dropdown for Course Selection -->
             <div class="mb-4">
                 <select id="courseSelect" class="form-select block w-full p-2 border rounded flex items-center" style="width: 320px; height: 40px; display: flex; align-items: center;visibility: hidden;">
-                    <!-- Options will be populated dynamically -->
+
                 </select>
             </div>
 
@@ -144,11 +141,11 @@
         <div class="bg-white p-4 rounded-lg shadow-md">
             <h2 class="text-lg font-bold mb-2">Requests by Subject Area</h2>
 
-            <!-- Dropdown for Course Selection -->
+
             <div class="mb-4">
                 <label for="subjectAreaCourseSelect" class="block text-md font-medium mb-2">Course</label>
                 <select id="subjectAreaCourseSelect" class="form-select block w-full p-2 border rounded flex items-center" style="width: 320px; height: 40px; display: flex; align-items: center;">
-                    <!-- Options will be populated dynamically -->
+
                 </select>
             </div>
             <div class="flex-grow flex justify-center items-center">
@@ -159,10 +156,9 @@
         <div class="bg-white p-4 rounded-lg shadow-md">
             <h2 class="text-lg font-bold mb-2">Ratings by TA</h2>
 
-            <!-- Dropdown for Course Selection -->
             <div class="mb-4">
                 <select id="courseSelect" class="form-select block w-full p-2 border rounded flex items-center" style="width: 320px; height: 40px; display: flex; align-items: center;visibility: hidden;">
-                    <!-- Options will be populated dynamically -->
+
                 </select>
             </div>            
 
@@ -175,7 +171,7 @@
 </div>
 
 <script>
-    // Make jsPDF accessible globally
+    
     window.jsPDF = window.jspdf.jsPDF;
 </script>
 

@@ -4,7 +4,7 @@
 <div class="bg-white p-4 rounded-lg shadow-md relative">
 
     <div class="flex items-center mb-4">
-        <h1 class="text-2xl font-bold">All Requests</h1>
+        <h1 class="text-2xl font-bold">Requests List</h1>
         <button id="refresh-btn" class=" ml-6 mb-0" style="color: #002147;" title="Refresh Page">
             <i id="refresh-icon" class="fas fa-sync-alt"></i>
         </button>        
@@ -149,7 +149,7 @@
                             @endif
                         </td>
                         <td class="py-2 px-4 border-b border-gray-200">
-                            @if($request->accepted_at && $request->completed_at)
+                            @if($request->accepted_at)
                                 @php
                                     $requested = \Carbon\Carbon::parse($request->requested_at);
                                     $accepted = \Carbon\Carbon::parse($request->accepted_at);
@@ -181,7 +181,13 @@
                     </tr>
                 @endforeach
             </tbody>
+
         </table>
+
+                   <div class="mt-4">
+                    {{ $requests->links() }}
+                </div>
+
     </div>
     @endif
 </div>
