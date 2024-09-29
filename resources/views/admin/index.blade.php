@@ -18,8 +18,20 @@
             <table class="min-w-full bg-white">
                 <thead>
                     <tr>
-                        <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable" data-column="course_name" data-order="{{ request('sort') == 'course_name' && request('order') == 'asc' ? 'desc' : 'asc' }}">
-                            Course Name <i class="fas fa-sort" onclick="sortTable('course_name', '{{ request('sort') == 'course_name' && request('order') == 'asc' ? 'desc' : 'asc' }}')"></i>
+                        <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable"
+                        data-column="id" 
+                        data-order="{{ request('sort') == 'id' && request('order') == 'asc' ? 'desc' : (request('sort') == 'id' && request('order') == 'desc' ? 'default' : 'asc') }}">
+                        Request<br>Number 
+                        <i class="fas fa-sort" onclick="sortTable('id', '{{ request('sort') == 'id' && request('order') == 'asc' ? 'desc' : (request('sort') == 'id' && request('order') == 'desc' ? 'default' : 'asc') }}')"></i>
+                        <i class="fas fa-filter cursor-pointer" onclick="toggleFilter('id')"></i>
+                        <div id="filter-id" class="filter-dropdown hidden">
+                            <input type="number" id="id_filter" placeholder="Filter by number" min="1" />
+                            <button class="filter-button" onclick="applyFilter('id')">Apply</button>
+                            <button class="filter-button" onclick="resetFilter('id')">Reset</button>
+                        </div>
+                    </th>
+                        <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable" data-column="course_name" data-order="{{ request('sort') == 'course_name' && request('order') == 'asc' ? 'desc' : (request('sort') == 'course_name' && request('order') == 'desc' ? 'default' : 'asc') }}">
+                            Course Name <i class="fas fa-sort" onclick="sortTable('course_name', '{{ request('sort') == 'course_name' && request('order') == 'asc' ? 'desc' : (request('sort') == 'course_name' && request('order') == 'desc' ? 'default' : 'asc') }}')"></i>
                             <i class="fas fa-filter cursor-pointer" onclick="toggleFilter('course_name')"></i>
                             <div id="filter-course_name" class="filter-dropdown hidden">
                                 @foreach($uniqueCourses as $course)
@@ -32,8 +44,8 @@
                                 <button class="filter-button" onclick="resetFilter('course_name')">Reset</button>
                             </div>
                         </th>
-                        <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable" data-column="course_code" data-order="{{ request('sort') == 'course_code' && request('order') == 'asc' ? 'desc' : 'asc' }}">
-                            Course Code <i class="fas fa-sort" onclick="sortTable('course_code', '{{ request('sort') == 'course_code' && request('order') == 'asc' ? 'desc' : 'asc' }}')"></i>
+                        <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable" data-column="course_code" data-order="{{ request('sort') == 'course_code' && request('order') == 'asc' ? 'desc' : (request('sort') == 'course_code' && request('order') == 'desc' ? 'default' : 'asc') }}">
+                            Course Code <i class="fas fa-sort" onclick="sortTable('course_code', '{{ request('sort') == 'course_code' && request('order') == 'asc' ? 'desc' : (request('sort') == 'course_code' && request('order') == 'desc' ? 'default' : 'asc') }}')"></i>
                             <i class="fas fa-filter cursor-pointer" onclick="toggleFilter('course_code')"></i>
                             <div id="filter-course_code" class="filter-dropdown hidden">
                                 @foreach($uniqueCourseCodes as $code)
@@ -46,8 +58,8 @@
                                 <button class="filter-button" onclick="resetFilter('course_code')">Reset</button>
                             </div>
                         </th>
-                        <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable" data-order="{{ request('sort') == 'request_type' && request('order') == 'asc' ? 'desc' : 'asc' }}">
-                            Request Type <i class="fas fa-sort" onclick="sortTable('request_type', '{{ request('sort') == 'request_type' && request('order') == 'asc' ? 'desc' : 'asc' }}')"></i>
+                        <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable" data-order="{{ request('sort') == 'request_type' && request('order') == 'asc' ? 'desc' : (request('sort') == 'request_type' && request('order') == 'desc' ? 'default' : 'asc') }}">
+                            Request Type <i class="fas fa-sort" onclick="sortTable('request_type', '{{ request('sort') == 'request_type' && request('order') == 'asc' ? 'desc' : (request('sort') == 'request_type' && request('order') == 'desc' ? 'default' : 'asc') }}')"></i>
                             <i class="fas fa-filter cursor-pointer" onclick="toggleFilter('request_type')"></i>
                             <div id="filter-request_type" class="filter-dropdown hidden">
                                 @foreach($uniqueRequestTypes as $type)
@@ -61,9 +73,9 @@
                             </div>
                         </th>
                         <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable" data-column="seat_number">
-                            Seat Number <i class="fas fa-sort" onclick="sortTable('seat_number', '{{ request('sort') == 'seat_number' && request('order') == 'asc' ? 'desc' : 'asc' }}')"></i>
+                            Seat Number <i class="fas fa-sort" onclick="sortTable('seat_number', '{{ request('sort') == 'seat_number' && request('order') == 'asc' ? 'desc' : (request('sort') == 'seat_number' && request('order') == 'desc' ? 'default' : 'asc') }}')"></i>
                         </th>
-                        <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable" data-column="status" data-order="{{ request('sort') == 'status' && request('order') == 'asc' ? 'desc' : 'asc' }}">
+                        <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable" data-column="status" data-order="{{ request('sort') == 'status' && request('order') == 'asc' ? 'desc' : (request('sort') == 'seat_number' && request('order') == 'desc' ? 'default' : 'asc') }}">
                             Status <i class="fas fa-sort" onclick="sortTable('status', '{{ request('sort') == 'status' && request('order') == 'asc' ? 'desc' : 'asc' }}')"></i>
                             <i class="fas fa-filter cursor-pointer" onclick="toggleFilter('status')"></i>
                             <div id="filter-status" class="filter-dropdown hidden">
@@ -78,10 +90,10 @@
                             </div>
                         </th>
                         <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable" data-column="requested_at">
-                            Requested Date/Time <i class="fas fa-sort" onclick="sortTable('requested_at', '{{ request('sort') == 'requested_at' && request('order') == 'asc' ? 'desc' : 'asc' }}')"></i>
+                            Requested Date/Time <i class="fas fa-sort" onclick="sortTable('requested_at', '{{ request('sort') == 'requested_at' && request('order') == 'asc' ? 'desc' : (request('sort') == 'requested_at' && request('order') == 'desc' ? 'default' : 'asc') }}')"></i>
                         </th>
-                        <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable" data-column="ta_name" data-order="{{ request('sort') == 'ta_name' && request('order') == 'asc' ? 'desc' : 'asc' }}">
-                            TA Name <i class="fas fa-sort" onclick="sortTable('ta_name', '{{ request('sort') == 'ta_name' && request('order') == 'asc' ? 'desc' : 'asc' }}')"></i>
+                        <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable" data-column="ta_name" data-order="{{ request('sort') == 'ta_name' && request('order') == 'asc' ? 'desc' : (request('sort') == 'ta_name' && request('order') == 'desc' ? 'default' : 'asc') }}">
+                            TA Name <i class="fas fa-sort" onclick="sortTable('ta_name', '{{ request('sort') == 'ta_name' && request('order') == 'asc' ? 'desc' : (request('sort') == 'ta_name' && request('order') == 'desc' ? 'default' : 'asc') }}')"></i>
                             <i class="fas fa-filter cursor-pointer" onclick="toggleFilter('ta_name')"></i>
                             <div id="filter-ta_name" class="filter-dropdown hidden">
                                 <div>
@@ -99,39 +111,43 @@
                             </div>
                         </th>
                         <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable" data-column="accepted_at">
-                            Accepted Date/Time <i class="fas fa-sort" onclick="sortTable('accepted_at', '{{ request('sort') == 'accepted_at' && request('order') == 'asc' ? 'desc' : 'asc' }}')"></i>
+                            Accepted Date/Time <i class="fas fa-sort" onclick="sortTable('accepted_at', '{{ request('sort') == 'accepted_at' && request('order') == 'asc' ? 'desc' : (request('sort') == 'accepted_at' && request('order') == 'desc' ? 'default' : 'asc') }}')"></i>
                         </th>
                         <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable" data-column="completed_at">
-                            Completed Date/Time <i class="fas fa-sort" onclick="sortTable('completed_at', '{{ request('sort') == 'completed_at' && request('order') == 'asc' ? 'desc' : 'asc' }}')"></i>
+                            Completed Date/Time <i class="fas fa-sort" onclick="sortTable('completed_at', '{{ request('sort') == 'completed_at' && request('order') == 'asc' ? 'desc' : (request('sort') == 'completed_at' && request('order') == 'desc' ? 'default' : 'asc') }}')"></i>
                         </th>
                         <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable" data-column="waiting_time">
-                            Waiting Time <i class="fas fa-sort" onclick="sortTable('waiting_time', '{{ request('sort') == 'waiting_time' && request('order') == 'asc' ? 'desc' : 'asc' }}')"></i>
+                            Waiting Time <i class="fas fa-sort" onclick="sortTable('waiting_time', '{{ request('sort') == 'waiting_time' && request('order') == 'asc' ? 'desc' : (request('sort') == 'waiting_time' && request('order') == 'desc' ? 'default' : 'asc') }}')"></i>
                         </th>                                               
                         <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable">Actions</th>
                         <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable"></th>
                     </tr>
                 </thead>
 
-                <tbody id="requestsTableBody">
+                <tbody>
                     @foreach($requests as $request)
                         <tr class="hover:bg-gray-100 transition-colors duration-200">
+                            <td class="py-2 px-4 border-b border-gray-200">{{ $request->id }}</td>
                             <td class="py-2 px-4 border-b border-gray-200">{{ $request->course_name }}</td>
                             <td class="py-2 px-4 border-b border-gray-200">{{ $request->course_code }}</td>
                             <td class="py-2 px-4 border-b border-gray-200">{{ucfirst( $request->request_type) }}</td>
                             <td class="py-2 px-4 border-b border-gray-200">{{ $request->seat_number }}</td>
                             <td class="py-2 px-4 border-b border-gray-200">{{ ucfirst($request->status) }}</td>
-                            <td class="py-2 px-4 border-b border-gray-200">{{ $request->requested_at }}</td>
+                            <td class="py-2 px-4 border-b border-gray-200"> <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->requested_at )->format('Y-m-d') }}</div>
+                                <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->requested_at)->format('H:i:s') }}</div></td>
                             <td class="py-2 px-4 border-b border-gray-200">{{ $request->ta ? $request->ta->name : 'N/A' }}</td>
                             <td class="py-2 px-4 border-b border-gray-200">@if($request->accepted_at)
-                                {{ $request->accepted_at }}
+                                <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->accepted_at)->format('Y-m-d') }}</div>
+                                <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->accepted_at)->format('H:i:s') }}</div>
                             @else
-                                -
+                                <span class="text-gray-500"> - </span>
                             @endif </td>
                             <td class="py-2 px-4 border-b border-gray-200">@if($request->completed_at)
-                                {{ $request->completed_at }}
+                                <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->completed_at)->format('Y-m-d') }}</div>
+                                <div class="whitespace-nowrap">{{ \Carbon\Carbon::parse($request->completed_at)->format('H:i:s') }}</div>
                             @else
-                                -
-                            @endif</td>
+                                <span class="text-gray-500"> - </span>
+                            @endif
                             <td class="py-2 px-4 border-b border-gray-200">
                                 @if($request->accepted_at)
                                     @php
@@ -180,11 +196,20 @@
 <script>
 
     function applyFilter(column) {
-        const checkboxes = document.querySelectorAll('#filter-' + column + ' input[type="checkbox"]:checked');
-        const selectedOptions = Array.from(checkboxes).map(checkbox => checkbox.value);
+        let value;
+        
+        if (column === 'id') {
+            // For request number (id), we get the input value directly
+            value = document.getElementById('id_filter').value;
+        } else {
+            // For other filters, we handle checkboxes
+            const checkboxes = document.querySelectorAll('#filter-' + column + ' input[type="checkbox"]:checked');
+            value = Array.from(checkboxes).map(checkbox => checkbox.value).join(',');
+        }
+        
         const url = new URL(window.location.href);
-        if (selectedOptions.length > 0) {
-            url.searchParams.set(column, selectedOptions.join(','));
+        if (value) {
+            url.searchParams.set(column, value);
         } else {
             url.searchParams.delete(column);
         }
@@ -198,10 +223,20 @@
     }
 
     function sortTable(column, order) {
-        const url = new URL(window.location.href);
+    const url = new URL(window.location.href);
+
+    if (order === 'asc') {
         url.searchParams.set('sort', column);
-        url.searchParams.set('order', order);
-        window.location.href = url.toString();
+        url.searchParams.set('order', 'desc');
+    } else if (order === 'desc') {
+        url.searchParams.delete('sort');  
+        url.searchParams.delete('order');
+    } else {
+        url.searchParams.set('sort', column);
+        url.searchParams.set('order', 'asc');
+    }
+
+    window.location.href = url.toString();
     }
 
     function toggleFilter(column) {

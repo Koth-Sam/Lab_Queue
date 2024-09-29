@@ -38,6 +38,7 @@ class SendWeeklyDashboardReport extends Command
                     SUM(CASE WHEN status = "accepted" THEN 1 ELSE 0 END) as accepted_requests,
                     SUM(CASE WHEN status = "completed" THEN 1 ELSE 0 END) as completed_requests
                 ')
+                ->where('created_at', '>=', Carbon::now()->subWeek())
                 ->first();
 
             $signOffRequests = UserRequest::where('course_name', $courseName)
@@ -67,7 +68,7 @@ class SendWeeklyDashboardReport extends Command
                 
                 'data' => [
                     (int) $requestsSummary->pending_requests,
-                    (int) $requestsSummary->accepted_requests,
+                    (int) $requestsSummary->accepted_requests + (int) $requestsSummary->completed_requests,
                     (int) $requestsSummary->completed_requests,
                 ],
                 'backgroundColor' => [

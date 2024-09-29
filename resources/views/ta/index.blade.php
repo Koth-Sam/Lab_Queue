@@ -8,7 +8,7 @@
         <button id="refresh-btn" class=" ml-6 mb-0" style="color: #002147;" title="Refresh Page">
             <i id="refresh-icon" class="fas fa-sync-alt"></i>
         </button>        
-    </div>    
+    </div>  
 
     @if(session('success'))
     <div class="p-4 rounded mb-4" style="background-color: #002147; color: white;">
@@ -18,7 +18,12 @@
 
     <div id="notification" 
      class="z-50 hidden text-white p-4 rounded-lg shadow-lg fixed top-10 right-5" 
-     style="background-color: #002147; opacity: 1;">New request added!</div>  
+     style="background-color: #002147; opacity: 1;">New request added!</div>
+
+     <div id="notification" 
+     class="z-50 hidden text-white p-4 rounded-lg shadow-lg fixed top-10 right-5" 
+     style="background-color: #002147; opacity: 1;">
+    </div>
 
     @if($requests->isEmpty())
         <p>No requests found.</p>
@@ -27,8 +32,24 @@
         <table class="min-w-full bg-white border-collapse shadow-lg">
             <thead>
                 <tr>
-                    <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable" data-column="course_name" data-order="{{ request('sort') == 'course_name' && request('order') == 'asc' ? 'desc' : 'asc' }}">
-                        Course<br>Name <i class="fas fa-sort" onclick="sortTable('course_name', '{{ request('sort') == 'course_name' && request('order') == 'asc' ? 'desc' : 'asc' }}')"></i>
+                    <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable"
+                        data-column="id" 
+                        data-order="{{ request('sort') == 'id' && request('order') == 'asc' ? 'desc' : (request('sort') == 'id' && request('order') == 'desc' ? 'default' : 'asc') }}">
+                        Request<br>Number 
+                        <i class="fas fa-sort" onclick="sortTable('id', '{{ request('sort') == 'id' && request('order') == 'asc' ? 'desc' : (request('sort') == 'id' && request('order') == 'desc' ? 'default' : 'asc') }}')"></i>
+                        <i class="fas fa-filter cursor-pointer" onclick="toggleFilter('id')"></i>
+                        <div id="filter-id" class="filter-dropdown hidden">
+                            <input type="number" id="id_filter" placeholder="Filter by number" />
+                            <button class="filter-button" onclick="applyFilter('id')">Apply</button>
+                            <button class="filter-button" onclick="resetFilter('id')">Reset</button>
+                        </div>
+                    </th>
+                    
+                    <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable"
+                        data-column="course_name" 
+                        data-order="{{ request('sort') == 'course_name' && request('order') == 'asc' ? 'desc' : (request('sort') == 'course_name' && request('order') == 'desc' ? 'default' : 'asc') }}">
+                        Course<br>Name 
+                        <i class="fas fa-sort" onclick="sortTable('course_name', '{{ request('sort') == 'course_name' && request('order') == 'asc' ? 'desc' : (request('sort') == 'course_name' && request('order') == 'desc' ? 'default' : 'asc') }}')"></i>
                         <i class="fas fa-filter cursor-pointer" onclick="toggleFilter('course_name')"></i>
                         <div id="filter-course_name" class="filter-dropdown hidden">
                             @foreach($uniqueCourses as $course)
@@ -41,8 +62,12 @@
                             <button class="filter-button" onclick="resetFilter('course_name')">Reset</button>
                         </div>
                     </th>
-                    <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable" data-column="course_code" data-order="{{ request('sort') == 'course_code' && request('order') == 'asc' ? 'desc' : 'asc' }}">
-                        Course<br>Code <i class="fas fa-sort" onclick="sortTable('course_code', '{{ request('sort') == 'course_code' && request('order') == 'asc' ? 'desc' : 'asc' }}')"></i>
+                    
+                    <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable"
+                        data-column="course_code" 
+                        data-order="{{ request('sort') == 'course_code' && request('order') == 'asc' ? 'desc' : (request('sort') == 'course_code' && request('order') == 'desc' ? 'default' : 'asc') }}">
+                        Course<br>Code 
+                        <i class="fas fa-sort" onclick="sortTable('course_code', '{{ request('sort') == 'course_code' && request('order') == 'asc' ? 'desc' : (request('sort') == 'course_code' && request('order') == 'desc' ? 'default' : 'asc') }}')"></i>
                         <i class="fas fa-filter cursor-pointer" onclick="toggleFilter('course_code')"></i>
                         <div id="filter-course_code" class="filter-dropdown hidden">
                             @foreach($uniqueCourseCodes as $code)
@@ -55,9 +80,13 @@
                             <button class="filter-button" onclick="resetFilter('course_code')">Reset</button>
                         </div>
                     </th>
-                    <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable" data-column="request_type" data-order="{{ request('sort') == 'request_type' && request('order') == 'asc' ? 'desc' : 'asc' }}">
-                        Request Type <i class="fas fa-sort" onclick="sortTable('request_type', '{{ request('sort') == 'request_type' && request('order') == 'asc' ? 'desc' : 'asc' }}')"></i>
-                        <i class="fas fa-filter cursor-pointer" onclick="toggleFilter('request_type')"></i>
+                    
+                    <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable"
+                        data-column="request_type" 
+                        data-order="{{ request('sort') == 'request_type' && request('order') == 'asc' ? 'desc' : (request('sort') == 'request_type' && request('order') == 'desc' ? 'default' : 'asc') }}">
+                        Request Type 
+                        <i class="fas fa-sort" onclick="sortTable('request_type', '{{ request('sort') == 'request_type' && request('order') == 'asc' ? 'desc' : (request('sort') == 'request_type' && request('order') == 'desc' ? 'default' : 'asc') }}')"></i>
+                       <i class="fas fa-filter cursor-pointer" onclick="toggleFilter('request_type')"></i>
                         <div id="filter-request_type" class="filter-dropdown hidden">
                             @foreach($uniqueRequestTypes as $type)
                                 <div>
@@ -69,11 +98,15 @@
                             <button class="filter-button" onclick="resetFilter('request_type')">Reset</button>
                         </div>
                     </th>
-                    <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer" data-column="seat_number">
-                        Seat<br>Number <i class="fas fa-sort" onclick="sortTable('seat_number', '{{ request('sort') == 'seat_number' && request('order') == 'asc' ? 'desc' : 'asc' }}')"></i>
+                    
+                    <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer"
+                        data-column="seat_number">
+                        Seat<br>Number 
+                        <i class="fas fa-sort" onclick="sortTable('seat_number', '{{ request('sort') == 'seat_number' && request('order') == 'asc' ? 'desc' : (request('sort') == 'seat_number' && request('order') == 'desc' ? 'default' : 'asc') }}')"></i>
                     </th>
-                    <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable" data-column="status" data-order="{{ request('sort') == 'status' && request('order') == 'asc' ? 'desc' : 'asc' }}">
-                        Status <i class="fas fa-sort" onclick="sortTable('status', '{{ request('sort') == 'status' && request('order') == 'asc' ? 'desc' : 'asc' }}')"></i>
+                    <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable" data-column="status" data-order="{{ request('sort') == 'status' && request('order') == 'asc' ? 'desc' : (request('sort') == 'status' && request('order') == 'desc' ? 'default' : 'asc') }}">
+                        Status <i class="fas fa-sort" onclick="sortTable('status', '{{ request('sort') == 'status' && request('order') == 'asc' ? 'desc' : (request('sort') == 'status' && request('order') == 'desc' ? 'default' : 'asc') }}')"></i>
+                   
                         <i class="fas fa-filter cursor-pointer" onclick="toggleFilter('status')"></i>
                         <div id="filter-status" class="filter-dropdown hidden">
                             @foreach($uniqueStatuses as $status)
@@ -87,10 +120,12 @@
                         </div>
                     </th>
                     <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300" data-column="requested_at">
-                        Requested Date/Time <i class="fas fa-sort" onclick="sortTable('requested_at', '{{ request('sort') == 'requested_at' && request('order') == 'asc' ? 'desc' : 'asc' }}')"></i>
+                        Requested Date/Time <i class="fas fa-sort" onclick="sortTable('requested_at', '{{ request('sort') == 'requested_at' && request('order') == 'asc' ? 'desc' : (request('sort') == 'id' && request('order') == 'desc' ? 'default' : 'asc') }}')"></i>
                     </th>
-                    <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300" data-column="ta_name" data-order="{{ request('sort') == 'ta_name' && request('order') == 'asc' ? 'desc' : 'asc' }}">
-                        TA Name <i class="fas fa-sort" onclick="sortTable('ta_name', '{{ request('sort') == 'ta_name' && request('order') == 'asc' ? 'desc' : 'asc' }}')"></i>
+                    </th>
+                    <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300" data-column="ta_name" data-order="{{ request('sort') == 'ta_name' && request('order') == 'asc' ? 'desc' : (request('sort') == 'ta_name' && request('order') == 'desc' ? 'default' : 'asc') }}">
+                        TA Name <i class="fas fa-sort" onclick="sortTable('ta_name', '{{ request('sort') == 'ta_name' && request('order') == 'asc' ? 'desc' : (request('sort') == 'ta_name' && request('order') == 'desc' ? 'default' : 'asc') }}')"></i>
+                   
                         <i class="fas fa-filter cursor-pointer" onclick="toggleFilter('ta_name')"></i>
                         <div id="filter-ta_name" class="filter-dropdown hidden">
                             <div>
@@ -108,13 +143,16 @@
                         </div>
                     </th>
                     <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300" data-column="accepted_at">
-                        Accepted Date/Time <i class="fas fa-sort" onclick="sortTable('accepted_at', '{{ request('sort') == 'accepted_at' && request('order') == 'asc' ? 'desc' : 'asc' }}')"></i>
+                        Accepted Date/Time <i class="fas fa-sort" onclick="sortTable('accepted_at', '{{ request('sort') == 'accepted_at' && request('order') == 'asc' ? 'desc' : (request('sort') == 'accepted_at' && request('order') == 'desc' ? 'default' : 'asc') }}')"></i>
+                    </th>
                     </th>
                     <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300" data-column="completed_at">
-                        Completed Date/Time <i class="fas fa-sort" onclick="sortTable('completed_at', '{{ request('sort') == 'completed_at' && request('order') == 'asc' ? 'desc' : 'asc' }}')"></i>
+                        Completed Date/Time <i class="fas fa-sort" onclick="sortTable('completed_at', '{{ request('sort') == 'completed_at' && request('order') == 'asc' ? 'desc' : (request('sort') == 'completed_at' && request('order') == 'desc' ? 'default' : 'asc') }}')"></i>
+                    </th>
                     </th>
                     <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer sortable" data-column="waiting_time">
-                        Waiting Time <i class="fas fa-sort" onclick="sortTable('waiting_time', '{{ request('sort') == 'waiting_time' && request('order') == 'asc' ? 'desc' : 'asc' }}')"></i>
+                        Waiting Time <i class="fas fa-sort" onclick="sortTable('waiting_time', '{{ request('sort') == 'waiting_time' && request('order') == 'asc' ? 'desc' : (request('sort') == 'waiting_time' && request('order') == 'desc' ? 'default' : 'asc') }}')"></i>
+                    </th>
                     </th>
                     <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300">Actions</th>
                     <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300"></th>
@@ -123,6 +161,7 @@
             <tbody id="request-list">
                 @foreach($requests as $request)
                     <tr class="hover:bg-gray-100 transition-colors duration-200">
+                        <td class="py-3 px-5 border-b border-gray-300">{{ $request->id }}</td>
                         <td class="py-3 px-5 border-b border-gray-300">{{ $request->course_name }}</td>
                         <td class="py-3 px-5 border-b border-gray-300">{{ $request->course_code }}</td>
                         <td class="py-3 px-5 border-b border-gray-300">{{ ucfirst($request->request_type) }}</td>
@@ -168,10 +207,10 @@
                         </td>
                         
                         <td class="py-3 px-5 border-b border-gray-300">
-                            <form action="{{ route('ta.update', $request->id) }}" method="POST">
+                            <form action="{{ route('ta.update', $request->id) }}" method="POST" class="status-form" data-request-id="{{ $request->id }}">
                                 @csrf
                                 @method('PUT')
-                                <select name="status" onchange="this.form.submit()" {{ $request->status == 'completed' ? 'disabled' : '' }} class="block py-2 px-4 border rounded focus:outline-none focus:border-blue-500">
+                                <select name="status" onchange="updateStatus(event, this)" {{ $request->status == 'completed' ? 'disabled' : '' }} class="block py-2 px-4 border rounded focus:outline-none focus:border-blue-500">
                                     <option value="pending" {{ $request->status == 'pending' ? 'selected' : '' }}>Pending</option>
                                     <option value="accepted" {{ $request->status == 'accepted' ? 'selected' : '' }}>Accepted</option>
                                     <option value="completed" {{ $request->status == 'completed' ? 'selected' : '' }}>Completed</option>
@@ -196,16 +235,26 @@
 <script>
 
     function applyFilter(column) {
-        const checkboxes = document.querySelectorAll('#filter-' + column + ' input[type="checkbox"]:checked');
-        const selectedOptions = Array.from(checkboxes).map(checkbox => checkbox.value);
+        let value;
+        
+        if (column === 'id') {
+         
+            value = document.getElementById('id_filter').value;
+        } else {
+            
+            const checkboxes = document.querySelectorAll('#filter-' + column + ' input[type="checkbox"]:checked');
+            value = Array.from(checkboxes).map(checkbox => checkbox.value).join(',');
+        }
+        
         const url = new URL(window.location.href);
-        if (selectedOptions.length > 0) {
-            url.searchParams.set(column, selectedOptions.join(','));
+        if (value) {
+            url.searchParams.set(column, value);
         } else {
             url.searchParams.delete(column);
         }
         window.location.href = url.toString();
     }
+
 
     function resetFilter(column) {
         const url = new URL(window.location.href);
@@ -214,11 +263,21 @@
     }
 
     function sortTable(column, order) {
-        const url = new URL(window.location.href);
+    const url = new URL(window.location.href);
+    if (order === 'asc') {
         url.searchParams.set('sort', column);
-        url.searchParams.set('order', order);
-        window.location.href = url.toString();
+        url.searchParams.set('order', 'desc');
+    } else if (order === 'desc') {
+        url.searchParams.delete('sort');  
+        url.searchParams.delete('order'); 
+    } else {
+        url.searchParams.set('sort', column);
+        url.searchParams.set('order', 'asc');
     }
+
+    window.location.href = url.toString();
+}
+
 
     function toggleFilter(column) {
         const filterElement = document.getElementById('filter-' + column);
@@ -237,6 +296,8 @@
         });
     });
 
+    
+
     document.addEventListener('DOMContentLoaded', function () {
             if (window.Echo) {
                 window.Echo.channel('requests')
@@ -254,10 +315,38 @@
             }
         });
 
-        document.getElementById('refresh-btn').addEventListener('click', function() {
+        document.addEventListener('DOMContentLoaded', function () {
+    if (window.Echo) {
+        window.Echo.channel('ta-requests')
+            .listen('RequestStatusUpdated', (data) => {
+                let message = '';
+                if (data.status === 'accepted') {
+                    message = `Request number ${data.request_id} has been accepted by ${data.ta_name}`;
+                } else if (data.status === 'completed') {
+                    message = `Request number ${data.request_id} has been completed by ${data.ta_name}`;
+                }
+
+                showNotification(message);
+            });
+    } else {
+        console.error('Laravel Echo is not initialized');
+    }
+});
+
+function showNotification(message) {
+    const notificationElement = document.getElementById('notification');
+    notificationElement.innerText = message;
+    notificationElement.classList.remove('hidden');  
+
+    setTimeout(() => {
+        notificationElement.classList.add('hidden');
+    }, 20000);
+}
+
+    document.getElementById('refresh-btn').addEventListener('click', function() {
             const refreshIcon = document.getElementById('refresh-icon');
             refreshIcon.classList.add('animate-spin'); 
-    axios.get('{{ route('ta.refresh') }}')
+        axios.get('{{ route('ta.refresh') }}')
         .then(function (response) {
           
             document.getElementById('request-list').innerHTML = '';
@@ -287,6 +376,7 @@
                         <td class="py-3 px-5 border-b border-gray-300">${taName}</td>
                         <td class="py-3 px-5 border-b border-gray-300">${acceptedAt}</td>
                         <td class="py-3 px-5 border-b border-gray-300">${completedAt}</td>
+                        <td class="py-3 px-5 border-b border-gray-300">${waiting_time}</td>
                         <td class="py-3 px-5 border-b border-gray-300">
                             <a href="/ta/show/${request.id}" class="text-blue-800 underline hover:text-blue-600">View Details</a>
                         </td>
@@ -309,6 +399,29 @@
             console.log(error);
         });
 });
+
+function updateStatus(event, select) {
+    event.preventDefault();
+
+    const form = select.closest('form');
+    const requestId = form.getAttribute('data-request-id');
+    const status = select.value;
+
+    axios.put(`/ta/requests/${requestId}`, {
+        status: status,
+        _token: '{{ csrf_token() }}' 
+    })
+    .then(response => {
+       
+        console.log('Status updated:', response.data);
+        
+    })
+    .catch(error => {
+        console.error('Error updating status:', error);
+    });
+}
+
+
     
 </script>
 

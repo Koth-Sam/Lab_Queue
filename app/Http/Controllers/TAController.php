@@ -16,6 +16,11 @@ class TAController extends Controller
         
         $query = UserRequest::query();
 
+        $query->where('id', '>', 0);
+        if ($request->has('id')) {
+            $query->where('id', $request->input('id'));
+        }
+
         if ($request->has('course_name')) {
             $courseNames = explode(',', $request->course_name);
             $query->whereIn('course_name', $courseNames);
@@ -55,10 +60,15 @@ class TAController extends Controller
             }
         }
 
-        $sortField = $request->get('sort', 'requested_at');
-        $sortOrder = $request->get('order', 'desc');
-        $requests = $query->orderBy($sortField, $sortOrder)->paginate(10);
-
+        if ($request->has('sort') && $request->has('order')) {
+            $sortField = $request->get('sort');
+            $sortOrder = $request->get('order');
+            $requests = $query->orderBy($sortField, $sortOrder)->paginate(10);
+        } else {
+            
+            $requests = $query->orderBy('requested_at', 'desc')->paginate(10);
+        }
+        $uniqueIds = UserRequest::distinct()->pluck('id');
         $uniqueCourses = UserRequest::distinct()->pluck('course_name');
         $uniqueCourseCodes = UserRequest::distinct()->pluck('course_code');
         $uniqueRequestTypes = UserRequest::distinct()->pluck('request_type');
@@ -68,7 +78,7 @@ class TAController extends Controller
             $uniqueTANames->push('N/A');
         }
 
-        return view('ta.index', compact('requests', 'uniqueCourses', 'uniqueCourseCodes', 'uniqueRequestTypes', 'uniqueStatuses', 'uniqueTANames'));
+        return view('ta.index', compact('requests', 'uniqueIds','uniqueCourses', 'uniqueCourseCodes', 'uniqueRequestTypes', 'uniqueStatuses', 'uniqueTANames'));
     }
 
     public function show($id)
@@ -105,6 +115,8 @@ class TAController extends Controller
         broadcast(new RequestStatusUpdated($userRequest));
            
         return redirect()->route('ta.index')->with('success');
+
+        
     }
 
     public function refresh()
@@ -127,7 +139,7 @@ class TAController extends Controller
             ->groupBy('date')
             ->orderBy('date', 'asc')
             ->get();
-    
+
         $requestsByStatus = UserRequest::where('ta_id', $taId)
             ->selectRaw("
                 CASE 
@@ -143,12 +155,10 @@ class TAController extends Controller
         $completedCount = $requestsByStatus->where('status', 'Completed')->first()->count ?? 0;
         $acceptedCount = $requestsByStatus->where('status', 'Accepted')->first()->count ?? 0;
     
-        if ($acceptedCount > 0 || $completedCount > 0) {
-            $acceptedCount += $completedCount;
-        }
+        $totalAcceptedCount = $acceptedCount + $completedCount;
     
         $requestsByStatus = collect([
-            ['status' => 'Accepted', 'count' => $acceptedCount],
+            ['status' => 'Accepted', 'count' => $totalAcceptedCount],
             ['status' => 'Completed', 'count' => $completedCount],
         ]);
     
@@ -165,9 +175,9 @@ class TAController extends Controller
             ->get();
     
         $requestsHandledByCourse = UserRequest::where('ta_id', $taId)
-            ->selectRaw('course_name, count(*) as count')
-            ->groupBy('course_name')
-            ->orderBy('course_name', 'asc')
+            ->selectRaw('course_code, count(*) as count')
+            ->groupBy('course_code')
+            ->orderBy('course_code', 'asc')
             ->get();
     
         $weeklyPerformance = UserRequest::where('ta_id', $taId)

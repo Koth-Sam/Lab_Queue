@@ -30,6 +30,9 @@
         <thead>
             <tr>
                 <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer hover:bg-gray-300 sortable" data-column="0">
+                    Request<br> Number <i class="fas fa-sort"></i>
+                </th>
+                <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer hover:bg-gray-300 sortable" data-column="0">
                     Course<br> Name <i class="fas fa-sort"></i>
                 </th>
                 <th class="py-1 px-4 bg-gray-200 text-[#002147] text-left text-sm uppercase font-semibold border-b border-gray-300 cursor-pointer hover:bg-gray-300 sortable" data-column="1">
@@ -67,6 +70,7 @@
         <tbody>
             @foreach($requests as $request)
                 <tr class="hover:bg-gray-100 transition-colors duration-200">
+                    <td class="py-3 px-5 border-b border-gray-300">{{ $request->id }}</td>
                     <td class="py-3 px-5 border-b border-gray-300">{{ $request->course_name }}</td>
                     <td class="py-3 px-5 border-b border-gray-300">{{ $request->course_code }}</td>
                     <td class="py-3 px-5 border-b border-gray-300">{{ ucfirst($request->request_type) }}</td>

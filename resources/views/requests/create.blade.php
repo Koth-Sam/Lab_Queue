@@ -60,6 +60,12 @@
 
         <button type="submit" class="p-1 rounded font-bold" style="background-color: #002147; color:#ffffff ;">
             Submit</button>
+
+        <button type="button" class="p-1 rounded font-bold ml-2" style="background-color: #777777fd; color:#ffffff;" 
+            onclick="window.location.href='{{ route('student.home') }}'">
+            Cancel
+        </button>
+        
     </form>
 
 

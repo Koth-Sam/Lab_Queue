@@ -31,14 +31,16 @@ class RequestStatusUpdated implements ShouldBroadcastNow
 
     public function broadcastOn()
     {
-        return new PrivateChannel('requests.'.$this->request->student_id);
+        return [new PrivateChannel('requests.'.$this->request->student_id), new Channel('ta-requests')];
     }
 
     public function broadcastWith()
     {
         return [
+            'request_id' => $this->request->id,
             'status' => $this->request->status,
             'ta_name' => $this->taName,
+            
         ];
     }
 }

@@ -295,7 +295,7 @@
             });
     
             const requestsHandledByCourseData = @json($requestsHandledByCourse);
-            const courseLabels = requestsHandledByCourseData.map(data => data.course_name);
+            const courseLabels = requestsHandledByCourseData.map(data => data.course_code);
             const courseCounts = requestsHandledByCourseData.map(data => data.count);
 
             new Chart(document.getElementById('requestsHandledByCourseChart'), {

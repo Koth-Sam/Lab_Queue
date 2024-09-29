@@ -15,6 +15,11 @@ class AdminController extends Controller
     {
         $query = UserRequest::query();
 
+        $query->where('id', '>', 0);
+        if ($request->has('id')) {
+            $query->where('id', $request->input('id'));
+        }
+
         if ($request->has('course_name')) {
             $courseNames = explode(',', $request->course_name);
             $query->whereIn('course_name', $courseNames);
@@ -54,10 +59,16 @@ class AdminController extends Controller
             }
         }
 
-        $sortField = $request->get('sort', 'requested_at');
-        $sortOrder = $request->get('order', 'desc');
-        $requests = $query->orderBy($sortField, $sortOrder)->paginate(10);
+        if ($request->has('sort') && $request->has('order')) {
+            $sortField = $request->get('sort');
+            $sortOrder = $request->get('order');
+            $requests = $query->orderBy($sortField, $sortOrder)->paginate(10);
+        } else {
+         
+            $requests = $query->orderBy('requested_at', 'desc')->paginate(10);
+        }
 
+        $uniqueIds = UserRequest::distinct()->pluck('id');
         $uniqueCourses = UserRequest::distinct()->pluck('course_name');
         $uniqueCourseCodes = UserRequest::distinct()->pluck('course_code');
         $uniqueRequestTypes = UserRequest::distinct()->pluck('request_type');
@@ -68,7 +79,7 @@ class AdminController extends Controller
             $uniqueTANames->push('N/A');
         }
         
-        return view('admin.index', compact('requests', 'uniqueCourses', 'uniqueCourseCodes', 'uniqueRequestTypes', 'uniqueStatuses', 'uniqueTANames'));
+        return view('admin.index', compact('requests', 'uniqueIds', 'uniqueCourses', 'uniqueCourseCodes', 'uniqueRequestTypes', 'uniqueStatuses', 'uniqueTANames'));
 
     }
 
